@@ -1,0 +1,29 @@
+# --------------------
+# Python
+# --------------------
+venv/
+__pycache__/
+*.py[cod]
+
+# Generated frontend files
+captured_faces/
+*_qr.png
+*_Slip.pdf
+
+# --------------------
+# Spring Boot / Maven
+# --------------------
+target/
+*.class
+*.log
+
+# --------------------
+# IDE files
+# --------------------
+.vscode/
+.idea/
+
+# --------------------
+# macOS
+# --------------------
+.DS_Store
