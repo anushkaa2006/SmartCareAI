@@ -634,13 +634,92 @@ class RegistrationPage(ctk.CTkFrame):
 
 
     def enable_update_mode(self):
-        self.page1_frame.pack_forget()
+        # self.page1_frame.pack_forget()
 
-        self.page2_frame.pack(fill="both", expand= True)
-        self.current_page =2
-        self.generate_btn.configure(
-            text="Generate Visit Slip"
+        # self.page2_frame.pack(fill="both", expand= True)
+        # self.current_page =2
+        # self.generate_btn.configure(
+        #     text="Generate Visit Slip"
+        # )
+        self.show_patient_summary()
+
+
+    def show_page1(self):
+
+        self.page2_frame.pack_forget()
+
+        self.page1_frame.pack(
+            fill="both",
+            expand=True
         )
+
+        if self.update_mode:
+            self.show_patient_summary()
+
+
+    def show_patient_summary(self):
+
+        if self.patient is None:
+            raise ValueError("Patient data is required in update mode.")
+        
+        for widget in self.page1_frame.winfo_children():
+            widget.destroy()
+        
+        container = ctk.CTkFrame(self.page1_frame, fg_color="transparent")
+        container.pack(fill="both",expand=True, padx=40,pady=40)
+        ctk.CTkLabel(container,text="✔ Existing Patient Verified",
+                     font=("Segoe UI", 24, "bold"),
+                    text_color=SUCCESS).pack(pady=(10,30))
+        info = ctk.CTkFrame(
+            container,
+            fg_color=SURFACE_ALT,
+            corner_radius=15
+        )
+
+        info.pack(fill="x", padx=50)
+
+        patient = self.patient
+
+        fields = [
+            ("Patient ID", patient["patientIdNumber"]),
+            ("Name", patient["name"]),
+            ("Age", patient["age"]),
+            ("Gender", patient["gender"]),
+            ("Phone", patient["phone"])
+        ]
+
+        for label, value in fields:
+
+            row = ctk.CTkFrame(
+                info,
+                fg_color="transparent"
+            )
+
+            row.pack(fill="x", padx=20, pady=8)
+
+            ctk.CTkLabel(
+                row,
+                text=f"{label}:",
+                width=140,
+                anchor="w",
+                font=("Segoe UI", 14, "bold")
+            ).pack(side="left")
+
+            ctk.CTkLabel(
+                row,
+                text=str(value),
+                anchor="w",
+                font=("Segoe UI", 14)
+            ).pack(side="left")
+
+            ctk.CTkButton(
+                container,
+                text="Continue →",
+                height=45,
+                fg_color=PRIMARY,
+                hover_color=PRIMARY_H,
+                command=self.show_page2
+            ).pack(pady=40)
 
 
 if __name__ == "__main__":
