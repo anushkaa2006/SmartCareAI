@@ -307,13 +307,31 @@ class RegistrationPage(ctk.CTkFrame):
 
         submit = ctk.CTkFrame(self.page2_frame, fg_color="transparent")
         submit.pack(fill="x", side="bottom", pady=12, padx=36)
-        self.generate_btn = ctk.CTkButton(
-            submit, text="Complete Registration & Generate Slip  →",
-            height=50, corner_radius=14, font=(FONT_DISPLAY, 15),
-            fg_color=PRIMARY, hover_color=PRIMARY_H,
-            text_color=("#FFFFFF", "#0B1121"),
-            state="normal", command=self.register_patient_api,
+        button_text = (
+            "Generate Visit Slip  →"
+            if self.update_mode
+            else "Complete Registration & Generate Slip  →"
         )
+
+        button_command = (
+            self.update_existing_patient
+            if self.update_mode
+            else self.register_patient_api
+        )
+
+        self.generate_btn = ctk.CTkButton(
+            submit,
+            text=button_text,
+            height=50,
+            corner_radius=14,
+            font=(FONT_DISPLAY, 15),
+            fg_color=PRIMARY,
+            hover_color=PRIMARY_H,
+            text_color=("#FFFFFF", "#0B1121"),
+            state="normal",
+            command=button_command,
+        )
+
         self.generate_btn.pack(side="right")
 
     # ---------- NAVIGATION ----------
@@ -585,17 +603,36 @@ class RegistrationPage(ctk.CTkFrame):
         return pdf_file
 
     def download_slip(self, patient_id, visit_id, queue_number, department, qr_path):
-        pdf_file = self.generate_pdf_slip(patient_id, visit_id, queue_number, department, qr_path)
+        slip_title = (
+            "Hospital Visit Slip"
+            if self.update_mode
+            else "Patient Registration Slip"
+        )
+
+        pdf_file = self.generate_pdf_slip(
+            patient_id,
+            visit_id,
+            queue_number,
+            department,
+            qr_path,
+            slip_title
+        )
+
         try:
+
             if sys.platform == "darwin":
                 subprocess.Popen(["open", pdf_file])
+
             elif sys.platform == "win32":
                 os.startfile(pdf_file)
+
             else:
                 subprocess.Popen(["xdg-open", pdf_file])
-        except Exception as e:
-            print(f"Error opening PDF: {e}")
 
+        except Exception as e:
+            print(e)
+
+            
     def calculate_age(self, event=None):
 
         dob = self.dob.get().strip()
@@ -720,6 +757,9 @@ class RegistrationPage(ctk.CTkFrame):
                 hover_color=PRIMARY_H,
                 command=self.show_page2
             ).pack(pady=40)
+    
+    def update_existing_patient(self):
+        print("Updating existing patient...")
 
 
 if __name__ == "__main__":
