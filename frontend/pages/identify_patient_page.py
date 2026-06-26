@@ -257,6 +257,8 @@ class IdentifyPatientPage(ctk.CTkFrame):
             if len(known_embeddings) == 0:
                 messagebox.showerror("Error","No valid face embeddings found in database")
                 return
+            
+            print("Total registered embeddings:", len(known_embeddings))
 
             distances = face_recognition.face_distance(known_embeddings, current_embedding)
             best_match_index = np.argmin(distances)
