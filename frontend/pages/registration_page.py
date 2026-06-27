@@ -581,13 +581,12 @@ class RegistrationPage(ctk.CTkFrame):
         queue_number = data["queueNumber"]
         department = data["department"]
 
-        qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)
-        self.download_slip(patient_id, visit_id, queue_number, department, qr_path)
+      
+        self.registration_success(patient_id, visit_id, queue_number, department, update_mode=True)
 
-        messagebox.showinfo("Success","Face Updated Successfully!\n\nVisit Generated.")
 
     # ---------- SUCCESS POPUP MODAL ----------
-    def registration_success(self, patient_id, visit_id, queue_number, department):
+    def registration_success(self, patient_id, visit_id, queue_number, department, update_mode =False):
         qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)
 
         self.success_popup = ctk.CTkFrame(self, fg_color=SURFACE, corner_radius=20, border_width=1, border_color=BORDER)
@@ -606,8 +605,15 @@ class RegistrationPage(ctk.CTkFrame):
         )
         badge.pack(pady=(0, 10))
 
-        ctk.CTkLabel(self.success_popup, text="Registration successful", font=(FONT_DISPLAY, 22), text_color=TEXT).pack()
-        ctk.CTkLabel(self.success_popup, text="Patient details captured and saved.", font=(FONT_BODY, 13), text_color=TEXT_SOFT).pack(pady=(4, 16))
+        if update_mode:
+            title = "Visit Created Successfully"
+            subtitle = "Face updated and patient added to the queue."
+        else:
+            title = "Registration Successful"
+            subtitle = "Patient details captured and saved."
+
+        ctk.CTkLabel(self.success_popup, text=title, font=(FONT_DISPLAY, 22), text_color=TEXT).pack()
+        ctk.CTkLabel(self.success_popup, text=subtitle, font=(FONT_BODY, 13), text_color=TEXT_SOFT).pack(pady=(4, 16))
 
         card = ctk.CTkFrame(self.success_popup, corner_radius=12, fg_color=SURFACE_ALT, border_width=1, border_color=BORDER_SOFT)
         card.pack(fill="x", padx=40, pady=10)
@@ -643,7 +649,7 @@ class RegistrationPage(ctk.CTkFrame):
         ).pack(fill="x", pady=(0, 10))
         
         ctk.CTkButton(
-            btn_frame, text="Done (New Patient)", height=46, corner_radius=12,
+            btn_frame, text="Done", height=46, corner_radius=12,
             font=(FONT_DISPLAY, 14), fg_color="transparent", hover_color=SURFACE_ALT,
             text_color=TEXT_SOFT, border_width=1, border_color=BORDER,
             command=self.close_success_popup
@@ -689,7 +695,6 @@ class RegistrationPage(ctk.CTkFrame):
         return pdf_file
 
     def download_slip(self, patient_id, visit_id, queue_number, department, qr_path):
-        print("DOWNLOAD SLIP CALLED")
         slip_title = (
             "Hospital Visit Slip"
             if self.update_mode
@@ -704,7 +709,6 @@ class RegistrationPage(ctk.CTkFrame):
             qr_path,
             slip_title
         )
-        print(pdf_file) 
 
         try:
 
