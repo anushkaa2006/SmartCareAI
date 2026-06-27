@@ -41,43 +41,37 @@ public class PatientService {
        patient.setDistrict(request.getDistrict());
        patient.setPincode(request.getPincode());
             
-            patient.setRegistrationDate(
+        patient.setRegistrationDate(
                 LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
             );
             
             patientRepository.save(patient);
 
-            Visit visit = new Visit();
+        Visit visit = new Visit();
 
-            LocalDate today = LocalDate.now();
+        LocalDate today = LocalDate.now();
 
-            Long lastSequence =
+        Long lastSequence =
                     visitRepository.findMaxSequenceForDate(today);
 
-            long nextSequence =
-                    (lastSequence == null)
-                    ? 1
-                    : lastSequence + 1;
+        long nextSequence =(lastSequence == null)? 1 : lastSequence + 1;
 
-            visit.setVisitSequence(nextSequence);
+        visit.setVisitSequence(nextSequence);
 
-            visit.setVisitId(generateVisitId(nextSequence));
+        visit.setVisitId(generateVisitId(nextSequence));
 
-            visit.setPatientId(patient.getPatientId());
+        visit.setPatientId(patient.getPatientId());
 
-            visit.setVisitDate(today);
+        visit.setVisitDate(today);
 
-            visit.setDepartmentId(request.getDepartment());
+        visit.setDepartmentId(request.getDepartment());
 
-            visit.setVisitStatus("ACTIVE");
+        visit.setVisitStatus("ACTIVE");
                                 
 
-            visit.setRegistrationDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) );
+        visit.setRegistrationDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) );
    
-
-        
-
-            visitRepository.save(visit);
+        visitRepository.save(visit);
 
             Queue queue = new Queue();
             queue.setQueueId(generateQueueId());
@@ -133,4 +127,59 @@ public class PatientService {
             return "QID" +datePart + String.format("%06d", count + 1);
         }
 
+
+        public PatientResponse createVisitForExistingPatient(
+            String patientId,
+            String department
+        ){
+            Visit visit = new Visit();
+
+        LocalDate today = LocalDate.now();
+
+        Long lastSequence =
+                    visitRepository.findMaxSequenceForDate(today);
+
+        long nextSequence =(lastSequence == null)? 1 : lastSequence + 1;
+
+        visit.setVisitSequence(nextSequence);
+
+        visit.setVisitId(generateVisitId(nextSequence));
+
+        visit.setPatientId(patientId);
+
+        visit.setVisitDate(today);
+
+        visit.setDepartmentId(department);
+
+        visit.setVisitStatus("ACTIVE");
+                                
+
+        visit.setRegistrationDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) );
+   
+        visitRepository.save(visit);
+
+            Queue queue = new Queue();
+            queue.setQueueId(generateQueueId());
+            queue.setVisitId(visit.getVisitId());
+            queue.setDepartmentId(department);
+            Integer lastQueue =queueRepository.findLastQueueNumber(department,LocalDate.now() );
+
+            int nextQueue =(lastQueue == null) ? 1: lastQueue + 1;
+
+            queue.setQueueNumber(nextQueue);
+
+            queue.setQueueDate(LocalDate.now());
+            queue.setQueueStatus(("WAITING"));
+            queue.setRegistrationDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
+
+            queueRepository.save(queue);
+            
+            return new PatientResponse(
+            patientId,
+            visit.getVisitId(),
+            "Visit Generated Successfully",
+            queue.getQueueNumber(),
+            department
+);
+        }
 }
