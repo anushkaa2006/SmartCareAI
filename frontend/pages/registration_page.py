@@ -689,6 +689,7 @@ class RegistrationPage(ctk.CTkFrame):
         return pdf_file
 
     def download_slip(self, patient_id, visit_id, queue_number, department, qr_path):
+        print("DOWNLOAD SLIP CALLED")
         slip_title = (
             "Hospital Visit Slip"
             if self.update_mode
@@ -703,6 +704,7 @@ class RegistrationPage(ctk.CTkFrame):
             qr_path,
             slip_title
         )
+        print(pdf_file) 
 
         try:
 
