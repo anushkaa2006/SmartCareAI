@@ -500,6 +500,29 @@ class RegistrationPage(ctk.CTkFrame):
         finally:
             self.generate_btn.configure(text="Complete Registration & Generate Slip  →", state="normal")
 
+
+    def update_existing_patient(self):
+        try:
+            if self.current_frame is None:
+                messagebox.showerror("Error","Please capture patient's face first")
+                return
+            
+            os.makedirs("captured_faces", exist_ok= True)
+            image_path = os.path.join("captured_faces",f"{self.patient['patientId']}.jpg")
+            cv2.imwrite(image_path,self.current_frame)
+
+            image = face_recognition.load_image_file(image_path)
+            encodings = face_recognition.face_encodings(image)
+            if len(encodings) ==0:
+                messagebox.showerror("Error"," No face detected.")
+                return
+            
+            embedding = encodings[0].tolist()
+            embedding_string = ",".join(map(str,embedding))
+
+        except Exception as e:
+            messagebox.showerror("Error",str(e))
+
     # ---------- SUCCESS POPUP MODAL ----------
     def registration_success(self, patient_id, visit_id, queue_number, department):
         qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)
@@ -584,13 +607,13 @@ class RegistrationPage(ctk.CTkFrame):
         img.save(qr_filename)
         return qr_filename
 
-    def generate_pdf_slip(self, patient_id, visit_id, queue_number, department, qr_path):
+    def generate_pdf_slip(self, patient_id, visit_id, queue_number, department, qr_path,slip_title):
         pdf_file = f"{patient_id}_Slip.pdf"
         doc = SimpleDocTemplate(pdf_file)
         styles = getSampleStyleSheet()
         elements = [
             Paragraph("SMARTCARE ID", styles['Title']),
-            Paragraph("Hospital Registration Slip", styles['Heading2']),
+            Paragraph(slip_title, styles['Heading2']),
             Spacer(1, 20),
             Paragraph(f"<b>Patient ID:</b> {patient_id}", styles['Normal']),
             Paragraph(f"<b>Visit ID:</b> {visit_id}", styles['Normal']),
@@ -758,8 +781,7 @@ class RegistrationPage(ctk.CTkFrame):
                 command=self.show_page2
             ).pack(pady=40)
     
-    def update_existing_patient(self):
-        print("Updating existing patient...")
+    
 
 
 if __name__ == "__main__":
