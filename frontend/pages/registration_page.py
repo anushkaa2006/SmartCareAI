@@ -520,6 +520,15 @@ class RegistrationPage(ctk.CTkFrame):
             embedding = encodings[0].tolist()
             embedding_string = ",".join(map(str,embedding))
 
+
+            payload = {
+                "patientId": self.patient["patientId"],
+                "imagePath": image_path,
+                "embeddingVector": embedding_string                            
+            }
+            response = requests.put(("http://localhost:9090/patients/face/update"),
+                                    json = payload)
+
         except Exception as e:
             messagebox.showerror("Error",str(e))
 
