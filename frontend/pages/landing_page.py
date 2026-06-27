@@ -31,7 +31,7 @@ FONT_BODY    = "Segoe UI"
 
 
 class LandingPage(ctk.CTkFrame):
-    def __init__(self, parent, open_registration, open_identify_patient, open_patient_recovery):
+    def __init__(self, parent, open_registration, open_identify_patient, open_patient_recovery, open_face_update):
         super().__init__(parent, fg_color=BG)
 
         self.open_registration = open_registration
@@ -241,34 +241,6 @@ class LandingPage(ctk.CTkFrame):
             500,
             self.start_camera
         )
-
-    # def _make_card(self, parent, icon, title, body, btn_text, color, hover, cmd):
-    #     card = ctk.CTkFrame(
-    #         parent, corner_radius=20, fg_color=SURFACE,
-    #         border_width=1, border_color=BORDER, height=200
-    #     )
-    #     card.pack_propagate(False)
-
-    #     inner = ctk.CTkFrame(card, fg_color="transparent")
-    #     inner.pack(fill="both", expand=True, padx=24, pady=20)
-
-    #     top = ctk.CTkFrame(inner, fg_color="transparent")
-    #     top.pack(fill="x")
-    #     ctk.CTkLabel(top, text=icon, font=(FONT_DISPLAY, 30)).pack(side="left")
-    #     ctk.CTkLabel(top, text=title, font=(FONT_DISPLAY, 20),
-    #                  text_color=TEXT).pack(side="left", padx=12)
-
-    #     ctk.CTkLabel(inner, text=body, font=(FONT_BODY, 13),
-    #                  text_color=TEXT_SOFT, justify="left", anchor="w").pack(
-    #         anchor="w", pady=(8, 14), fill="x")
-
-    #     ctk.CTkButton(
-    #         inner, text=btn_text, height=42, corner_radius=12,
-    #         font=(FONT_DISPLAY, 13),
-    #         fg_color=color, hover_color=hover,
-    #         text_color=("#FFFFFF", "#1A1C1B"), command=cmd
-    #     ).pack(fill="x")
-    #     return card
 
     def toggle_theme(self):
         ctk.set_appearance_mode("dark" if self.theme_switch.get() == 1 else "light")

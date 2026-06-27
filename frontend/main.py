@@ -53,7 +53,7 @@ def show_landing():
     current_page = LandingPage(app, open_registration=show_registration, 
                                open_identify_patient=show_identify_patient, 
                                open_patient_recovery=show_patient_recovery,
-                               open_face_update = show_face_update)
+                               open_face_update = show_face_update )
 
 show_landing()
 app.mainloop()
