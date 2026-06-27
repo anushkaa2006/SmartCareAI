@@ -167,19 +167,27 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
     # --- RETAINED LOGIC ---
     def toggle_theme(self): ctk.set_appearance_mode("dark" if self.theme_switch.get() == 1 else "light")
+
+    
     def go_back_safe(self):
         try: self.winfo_toplevel().unbind('<space>')
         except: pass
         if self.cap is not None: self.cap.release()
         self.go_back_command()
+
+
     def open_camera(self):
         self.status_label.configure(text="Opening camera...", text_color=WARNING)
         if self.cap is not None: self.cap.release()
         self.cap = cv2.VideoCapture(0)
         self.winfo_toplevel().bind('<space>', self._handle_spacebar_capture)
         self.show_camera()
+
+
     def _handle_spacebar_capture(self, event=None):
         if self.cap is not None: self.capture_face()
+
+        
     def show_camera(self):
         if self.cap is None: return
         ret, frame = self.cap.read()
@@ -193,6 +201,9 @@ class IdentifyPatientPage(ctk.CTkFrame):
             self.camera_label.configure(image=ctk_image, text="")
             self.camera_label.image = ctk_image
         self.after(33, self.show_camera)
+
+
+
     def capture_face(self):
         if self.current_frame is None:
             messagebox.showerror("Error", "Please open the camera first!")
@@ -208,6 +219,8 @@ class IdentifyPatientPage(ctk.CTkFrame):
             self.cap.release()
             self.cap = None
         self.generate_embedding(image_path)
+
+
     # ... (Rest of the logic methods remain identical)
     # =========================
     # GENERATE EMBEDDING & IDENTIFY

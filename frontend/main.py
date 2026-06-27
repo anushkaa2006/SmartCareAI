@@ -36,7 +36,15 @@ def show_patient_recovery():
         current_page.destroy()
     
     current_page = PatientRecoveryPage(app,go_back= show_landing,
-                                       open_registration= show_registration, open_face_update= show_identify_patient)
+                                       open_registration= show_registration, open_face_update= show_face_update)
+    
+
+def show_face_update(patient):
+    global current_page
+    if current_page:
+        current_page.destroy()
+    
+    current_page = RegistrationPage(app, go_back= show_landing,update_mode=True,patient=patient)
 
 def show_landing():
     global current_page
@@ -44,7 +52,8 @@ def show_landing():
         current_page.destroy()
     current_page = LandingPage(app, open_registration=show_registration, 
                                open_identify_patient=show_identify_patient, 
-                               open_patient_recovery=show_patient_recovery)
+                               open_patient_recovery=show_patient_recovery,
+                               open_face_update = show_face_update)
 
 show_landing()
 app.mainloop()

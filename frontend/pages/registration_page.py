@@ -313,12 +313,6 @@ class RegistrationPage(ctk.CTkFrame):
             else "Complete Registration & Generate Slip  →"
         )
 
-        button_command = (
-            self.update_existing_patient
-            if self.update_mode
-            else self.register_patient_api
-        )
-
         self.generate_btn = ctk.CTkButton(
             submit,
             text=button_text,
@@ -345,8 +339,25 @@ class RegistrationPage(ctk.CTkFrame):
 
     def show_page2(self):
         self.page1_frame.pack_forget()
-        self.page2_frame.pack(fill="both", expand=True)
+
+        self.page2_frame.pack(
+            fill="both",
+            expand=True
+        )
+
         self._set_step(2)
+
+        if self.update_mode:
+
+            self.generate_btn.configure(
+                text="Update Face & Generate Slip →"
+            )
+
+        else:
+
+            self.generate_btn.configure(
+                text="Complete Registration & Generate Slip →"
+            )
 
     def validate_and_next(self):
         self.error_label1.configure(text="")
@@ -556,7 +567,7 @@ class RegistrationPage(ctk.CTkFrame):
             "patientId": self.patient["patientId"],
             "department":self.department.get()
         }
-        response = requests.post("https://localhost:9090/patient/visit/existing", json = payload)
+        response = requests.post("http://localhost:9090/patients/visit/existing", json = payload)
         if response.status_code != 200:
             messagebox.showerror("Error",response.text)
             return
@@ -564,6 +575,16 @@ class RegistrationPage(ctk.CTkFrame):
         data = response.json()
         self.generate_slip_existing(data)
 
+    def generate_slip_existing(self,data):
+        patient_id = data["patientId"]
+        visit_id = data["visitId"]
+        queue_number = data["queueNumber"]
+        department = data["department"]
+
+        qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)
+        self.download_slip(patient_id, visit_id, queue_number, department, qr_path)
+
+        messagebox.showinfo("Success","Face Updated Successfully!\n\nVisit Generated.")
 
     # ---------- SUCCESS POPUP MODAL ----------
     def registration_success(self, patient_id, visit_id, queue_number, department):
@@ -736,13 +757,6 @@ class RegistrationPage(ctk.CTkFrame):
 
 
     def enable_update_mode(self):
-        # self.page1_frame.pack_forget()
-
-        # self.page2_frame.pack(fill="both", expand= True)
-        # self.current_page =2
-        # self.generate_btn.configure(
-        #     text="Generate Visit Slip"
-        # )
         self.show_patient_summary()
 
 
@@ -783,7 +797,7 @@ class RegistrationPage(ctk.CTkFrame):
         patient = self.patient
 
         fields = [
-            ("Patient ID", patient["patientIdNumber"]),
+            ("Patient ID", patient["patientId"]),
             ("Name", patient["name"]),
             ("Age", patient["age"]),
             ("Gender", patient["gender"]),
@@ -814,14 +828,14 @@ class RegistrationPage(ctk.CTkFrame):
                 font=("Segoe UI", 14)
             ).pack(side="left")
 
-            ctk.CTkButton(
-                container,
-                text="Continue →",
-                height=45,
-                fg_color=PRIMARY,
-                hover_color=PRIMARY_H,
-                command=self.show_page2
-            ).pack(pady=40)
+        ctk.CTkButton(
+            container,
+            text="Continue →",
+            height=45,
+            fg_color=PRIMARY,
+            hover_color=PRIMARY_H,
+            command=self.show_page2
+        ).pack(pady=40)
     
     
 

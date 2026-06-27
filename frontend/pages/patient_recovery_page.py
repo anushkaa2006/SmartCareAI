@@ -134,7 +134,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
                 messagebox.showerror("Not Found","Patient ID doea not exist")
                 return
             patient = response.json()
-            self.open_face_update(patient["patientId"])
+            self.open_face_update(patient)
         
         except Exception as e:
             messagebox.showerror("Error", str(e))
