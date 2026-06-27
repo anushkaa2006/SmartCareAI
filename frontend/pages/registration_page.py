@@ -329,7 +329,7 @@ class RegistrationPage(ctk.CTkFrame):
             hover_color=PRIMARY_H,
             text_color=("#FFFFFF", "#0B1121"),
             state="normal",
-            command=button_command,
+            command=self.submit_patient,
         )
 
         self.generate_btn.pack(side="right")
@@ -500,6 +500,17 @@ class RegistrationPage(ctk.CTkFrame):
         finally:
             self.generate_btn.configure(text="Complete Registration & Generate Slip  →", state="normal")
 
+    
+    def submit_patient(self):
+
+        if self.update_mode:
+
+            self.update_existing_patient()
+
+        else:
+
+            self.register_patient_api()
+
 
     def update_existing_patient(self):
         try:
@@ -529,8 +540,30 @@ class RegistrationPage(ctk.CTkFrame):
             response = requests.put(("http://localhost:9090/patients/face/update"),
                                     json = payload)
 
+            if response.status_code!=200:
+                messagebox.showerror("Error", response.text)
+                return
+            
+            self.generate_existing_visit()
+
         except Exception as e:
             messagebox.showerror("Error",str(e))
+
+
+
+    def generate_existing_visit(self):
+        payload={
+            "patientId": self.patient["patientId"],
+            "department":self.department.get()
+        }
+        response = requests.post("https://localhost:9090/patient/visit/existing", json = payload)
+        if response.status_code != 200:
+            messagebox.showerror("Error",response.text)
+            return
+        
+        data = response.json()
+        self.generate_slip_existing(data)
+
 
     # ---------- SUCCESS POPUP MODAL ----------
     def registration_success(self, patient_id, visit_id, queue_number, department):
