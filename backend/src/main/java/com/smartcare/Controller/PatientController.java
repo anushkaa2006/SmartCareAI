@@ -1,5 +1,6 @@
 package com.smartcare.Controller;
 
+import com.smartcare.dto.ExistingPatientVisitRequest;
 import com.smartcare.dto.FaceDataRequest;
 import com.smartcare.dto.PatientRequest;
 import com.smartcare.dto.PatientResponse;
@@ -26,7 +27,7 @@ public class PatientController {
     private FaceDataRepository faceDataRepository;
 
     @Autowired
-    private PatientRepository patientRepository;    
+    private PatientRepository patientRepository;        
 
     @PostMapping("/register")
     public PatientResponse registerPatient(@RequestBody PatientRequest request) {
@@ -63,7 +64,7 @@ public class PatientController {
                 faceData.setImagePath(request.getImagePath());
                 faceData.setEmbeddingVector(request.getEmbeddingVector());
                 faceData.setEnrollmentDate(LocalDate.now().toString());
-                
+
                 faceDataRepository.save(faceData);
 
                 return "Face Updated Successfully";
@@ -79,6 +80,16 @@ public class PatientController {
         public Patient getPatientById(@PathVariable String patientId) {
 
                 return patientRepository.findById(patientId).orElse(null);
+        }
+
+        @PostMapping("/visit/existing")
+        public PatientResponse createVisitForExistingPatient(
+                @RequestBody ExistingPatientVisitRequest request
+        ){
+                return patientService.createVisitForExistingPatient(
+                request.getPatientId(),
+                request.getDepartment()
+                );
         }
 
 }
