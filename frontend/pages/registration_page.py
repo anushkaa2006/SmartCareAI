@@ -380,7 +380,39 @@ class RegistrationPage(ctk.CTkFrame):
             self.error_label1.configure(text="Please select a visiting department")
             return
             
-        self.show_page2()
+        try:
+            payload = {
+                "name": self.full_name.get().strip(),
+                "fatherSpouseName": self.father_name.get().strip(),
+                "dob": self.dob.get().strip(),
+                "phone": self.phone.get().strip()
+            }
+            response = requests.post("http://localhost:9090/patients/check-existing",json=payload)
+
+            print("Status:", response.status_code)
+            print("Body:", repr(response.text))
+            if response.status_code == 204:
+                self.show_page2()
+                return
+            
+            patient = response.json()
+            if patient:
+                answer = messagebox.askyesno(
+                    "Existing Patient Found",
+                    f"""A patient with these details already exists.
+                    Patient ID: {patient['patientId']}
+                    Do you want to update the face for this patient instead of creating a new registration?"""
+                )
+                if answer:
+                    self.patient = patient
+                    self.update_mode =True
+                    self.enable_update_mode()
+                    return
+            self.show_page2()
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
 
     # ---------- HARDWARE & API ----------
     def load_departments(self):

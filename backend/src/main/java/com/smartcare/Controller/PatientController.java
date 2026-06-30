@@ -11,6 +11,7 @@ import com.smartcare.service.PatientService;
 import java.util.List;
 import com.smartcare.repository.PatientRepository;
 import com.smartcare.dto.ExistingPatientCheckRequest;
+import org.springframework.http.ResponseEntity;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -94,13 +95,18 @@ public class PatientController {
         }
 
         @PostMapping("/check-existing")
-        public Patient checkExistingPatient(@RequestBody ExistingPatientCheckRequest request){
-                return patientService.checkExistingPatient(
+        public ResponseEntity<Patient> checkExistingPatient(@RequestBody ExistingPatientCheckRequest request){
+                Patient patient = patientService.checkExistingPatient(
                         request.getName(),
                         request.getFatherSpouseName(),
                         request.getDob(),
                         request.getPhone()
                 );  
+                 if(patient == null){
+                        return ResponseEntity.noContent().build();   // HTTP 204
+                }
+
+                return ResponseEntity.ok(patient);
         }
 
 }
