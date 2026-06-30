@@ -10,6 +10,7 @@ import com.smartcare.repository.FaceDataRepository;
 import com.smartcare.service.PatientService;
 import java.util.List;
 import com.smartcare.repository.PatientRepository;
+import com.smartcare.dto.ExistingPatientCheckRequest;
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -91,5 +92,15 @@ public class PatientController {
                 request.getDepartment()
                 );
         }
+
+        @PostMapping("/check-existing")
+        public Patient checkExistingPatient(@RequestBody ExistingPatientCheckRequest request){
+                return patientService.checkExistingPatient(
+                        request.getName(),
+                        request.getFatherSpouseName(),
+                        request.getDob(),
+                        request.getPhone()
+                );  
+
 
 }
