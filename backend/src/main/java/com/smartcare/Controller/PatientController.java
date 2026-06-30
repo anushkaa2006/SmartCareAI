@@ -101,6 +101,6 @@ public class PatientController {
                         request.getDob(),
                         request.getPhone()
                 );  
-
+        }
 
 }
