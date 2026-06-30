@@ -180,6 +180,15 @@ public class PatientService {
             "Visit Generated Successfully",
             queue.getQueueNumber(),
             department
-);
+            );
         }
+
+    public Patient checkExistingPatient(
+        String name,
+        String fatherSpouseName,
+        String dob,
+        String phone
+    ){
+        return patientRepository.findByNameAndFatherSpouseNameAndDobAndPhone(name, fatherSpouseName, dob, phone);
+    }    
 }

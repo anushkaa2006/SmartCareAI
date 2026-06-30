@@ -9,5 +9,11 @@ public interface PatientRepository
         extends JpaRepository<Patient, String> {
 
     long countByRegistrationDate(String registrationDate);
+    Patient findByNameAndFatherSpouseNameAndDobAndPhone(
+        String name,
+        String fatherSpouseName,
+        String dob,
+        String phone
+    );
         
 }
