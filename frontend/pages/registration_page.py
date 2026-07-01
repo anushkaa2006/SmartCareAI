@@ -610,7 +610,7 @@ class RegistrationPage(ctk.CTkFrame):
     def generate_existing_visit(self):
         payload={
             "patientId": self.patient["patientId"],
-            "department":self.department.get()
+            "department":self.department_name
         }
         response = requests.post("http://localhost:9090/patients/visit/existing", json = payload)
         if response.status_code != 200:
