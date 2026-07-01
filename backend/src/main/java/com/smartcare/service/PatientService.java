@@ -2,15 +2,19 @@ package com.smartcare.service;
 
 import com.smartcare.dto.PatientRequest;
 import com.smartcare.dto.PatientResponse;
+import com.smartcare.model.Department;
 import com.smartcare.model.Patient;
 import com.smartcare.model.Queue;
 import com.smartcare.model.Visit;
+import com.smartcare.repository.DepartmentRepository;
 import com.smartcare.repository.PatientRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+
+import javax.management.RuntimeErrorException;
 
 import com.smartcare.repository.VisitRepository;
 import com.smartcare.repository.QueueRepository;
@@ -27,6 +31,9 @@ public class PatientService {
 
     @Autowired
     private QueueRepository queueRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     public PatientResponse registerPatient(PatientRequest request) {
        Patient patient = new Patient();
@@ -137,6 +144,11 @@ public class PatientService {
             Visit visit = new Visit();
 
         LocalDate today = LocalDate.now();
+        Department dept = departmentRepository.findByDepartmentName(department);
+        if (dept == null) {
+            throw new RuntimeException("Department not found");
+        }
+        String departmentId = dept.getDepartmentId();
 
         Long lastSequence =
                     visitRepository.findMaxSequenceForDate(today);
@@ -151,7 +163,7 @@ public class PatientService {
 
         visit.setVisitDate(today);
 
-        visit.setDepartmentId(department);
+        visit.setDepartmentId(departmentId);
 
         visit.setVisitStatus("ACTIVE");
                                 
@@ -163,8 +175,8 @@ public class PatientService {
             Queue queue = new Queue();
             queue.setQueueId(generateQueueId());
             queue.setVisitId(visit.getVisitId());
-            queue.setDepartmentId(department);
-            Integer lastQueue =queueRepository.findLastQueueNumber(department,LocalDate.now() );
+            queue.setDepartmentId(departmentId);
+            Integer lastQueue =queueRepository.findLastQueueNumber(departmentId,LocalDate.now() );
 
             int nextQueue =(lastQueue == null) ? 1: lastQueue + 1;
 
@@ -175,7 +187,8 @@ public class PatientService {
             queue.setRegistrationDate(LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")));
 
             queueRepository.save(queue);
-            
+            System.out.println("Last Queue = " + lastQueue);
+            System.out.println("Next Queue = " + nextQueue);
             return new PatientResponse(
             patientId,
             visit.getVisitId(),
