@@ -445,3 +445,5 @@ class IdentifyPatientPage(ctk.CTkFrame):
                 subprocess.Popen(["xdg-open", pdf_file])
         except Exception as e:
             print(f"Error opening PDF: {e}")
+
+
