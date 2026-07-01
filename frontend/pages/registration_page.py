@@ -46,13 +46,14 @@ FONT_BODY    = "Segoe UI"
 
 
 class RegistrationPage(ctk.CTkFrame):
-    def __init__(self, parent, go_back,update_mode = False, patient = None, department_id = None, department_name = None):
+    def __init__(self, parent, go_back,update_mode = False, patient = None, department_id = None, department_name = None, skip_summary =False):
         super().__init__(parent, fg_color=BG)
         self.go_back = go_back
         self.update_mode = update_mode
         self.patient = patient
         self.department_id = department_id
         self.department_name = department_name
+        self.skip_summary = skip_summary
         self.pack(fill="both", expand=True)
 
         self.form_data = {}
@@ -76,9 +77,15 @@ class RegistrationPage(ctk.CTkFrame):
 
         self._build_page1()
         self._build_page2()
-        self.show_page1()
         if self.update_mode:
-            self.enable_update_mode()
+            if self.skip_summary:
+                self.show_page2()
+            else:
+                self.show_page1()
+
+        
+        else:
+            self.show_page1()
 
     # ---------- HEADER ----------
 
@@ -801,7 +808,15 @@ class RegistrationPage(ctk.CTkFrame):
 
 
     def enable_update_mode(self):
-        self.show_patient_summary()
+
+        self.generate_btn.configure(
+            text="Update Face & Generate Slip →"
+        )
+
+        if self.skip_summary:
+            self.show_page2()
+        else:
+            self.show_patient_summary()
 
 
     def show_page1(self):
