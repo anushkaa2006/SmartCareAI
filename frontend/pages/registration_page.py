@@ -46,11 +46,13 @@ FONT_BODY    = "Segoe UI"
 
 
 class RegistrationPage(ctk.CTkFrame):
-    def __init__(self, parent, go_back,update_mode = False, patient = None):
+    def __init__(self, parent, go_back,update_mode = False, patient = None, department_id = None, department_name = None):
         super().__init__(parent, fg_color=BG)
         self.go_back = go_back
         self.update_mode = update_mode
         self.patient = patient
+        self.department_id = department_id
+        self.department_name = department_name
         self.pack(fill="both", expand=True)
 
         self.form_data = {}
