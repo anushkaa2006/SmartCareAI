@@ -10,6 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+
 import com.smartcare.repository.VisitRepository;
 import com.smartcare.repository.QueueRepository;
 
@@ -189,21 +191,20 @@ public class PatientService {
         String dob,
         String phone
     ){
-        System.out.println("Searching:");
-        System.out.println("Name = " + name);
-        System.out.println("Father = " + fatherSpouseName);
-        System.out.println("DOB = " + dob);
-        System.out.println("Phone = " + phone);
+        List<Patient> patients = patientRepository.findByPhone(phone);
+        if(patients.isEmpty()){
+            return null;
+        }
+        for(Patient patient :patients){
+            boolean sameName = patient.getName().trim().equalsIgnoreCase(name.trim());
+            boolean sameFather = patient.getFatherSpouseName().trim().equalsIgnoreCase(fatherSpouseName.trim());
+            boolean sameDob = patient.getDob().trim().equals(dob.trim());
+        
 
-        Patient patient = patientRepository.findByNameAndFatherSpouseNameAndDobAndPhone(
-                name,
-                fatherSpouseName,
-                dob,
-                phone
-        );
-
-        System.out.println("Found = " + patient);
-
-        return patient;
-    }  
+            if(sameName && sameFather && sameDob){
+                return patient;
+            }
+        }  
+    return null;
+    }
 }
