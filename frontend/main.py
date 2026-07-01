@@ -20,13 +20,13 @@ def show_registration():
         current_page.destroy()
     current_page = RegistrationPage(app, go_back=show_landing)
 
-def show_identify_patient(patient_id=None):
+def show_identify_patient(patient_id=None, department_id=None, department_name=None):
     global current_page
 
     if current_page:
         current_page.destroy()
 
-    current_page = IdentifyPatientPage(app, go_back=show_landing,patient_id=patient_id)
+    current_page = IdentifyPatientPage(app, go_back=show_landing,patient_id=patient_id, department_id= department_id, department_name = department_name)
 
 
 def show_patient_recovery():

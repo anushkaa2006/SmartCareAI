@@ -135,20 +135,13 @@ class PatientRecoveryPage(ctk.CTkFrame):
                 messagebox.showerror("Not Found","Patient ID doea not exist")
                 return
             patient = response.json()
-            self.open_face_update(patient)
+            self.verified_patient = patient
+            self.show_patient_info(patient)
         
         except Exception as e:
             messagebox.showerror("Error", str(e))
 
     
-    def toggle_theme(self):
-
-        if ctk.get_appearance_mode() == "Dark":
-            ctk.set_appearance_mode("light")
-        else:
-            ctk.set_appearance_mode("dark")
-
-
     def load_departments(self):
         try:
             response = requests.get("http://localhost:9090/departments", timeout=5)
@@ -177,3 +170,56 @@ class PatientRecoveryPage(ctk.CTkFrame):
         except Exception as e:
             import traceback
             traceback.print_exc()
+
+
+    def show_patient_info(self, patient):
+        for widget in self.winfo_children():
+            if widget != self.winfo_children()[0]:  # Keep the header
+                widget.destroy()
+        
+        container = ctk.CTkFrame(self,fg_color=SURFACE, corner_radius=20)
+        container.pack(fill="both",expand=True, padx=20, pady=30)
+        ctk.CTkLabel(container,text="✔ Existing Patient Verified",font=(FONT_DISPLAY,28), 
+                    text_color=SUCCESS).pack(pady=(30,20))
+        info = ctk.CTkFrame(container,fg_color=SURFACE_ALT, corner_radius=15)
+        info.pack(pady=40, padx=20, fill="x")
+        fields = [
+        ("Patient ID", patient["patientId"]),
+        ("Name", patient["name"]),
+        ("Age", patient["age"]),
+        ("Gender", patient["gender"]),
+        ("Phone", patient["phone"])
+        ]
+        for label, value in fields:
+            row = ctk.CTkFrame(info, fg_color="transparent")
+            row.pack(fill="x", padx=20, pady=8)
+            ctk.CTkLabel(row, text=label+":", font=(FONT_DISPLAY, 14),width=120, anchor="w").pack(side="left")
+            ctk.CTkLabel(row, text=str(value), font=(FONT_BODY, 14)).pack(side="left")
+
+        self.department_dropdown = ctk.CTkComboBox(container, width=320, values =["Loading..."])
+        self.department_dropdown.pack()
+        self.load_departments()
+        ctk.CTkButton(container,text="Continue",width=180,height=42, 
+                        fg_color=PRIMARY,hover_color=PRIMARY_H,
+                        command=self.continue_to_face_update).pack(pady=30)
+    
+
+    def continue_to_face_update(self):
+        department_name = self.department_dropdown.get()
+        department_id = self.department_map.get(department_name)
+        self.open_face_update(
+            self.verified_patient,department_id,department_name
+        )
+
+
+
+
+    def toggle_theme(self):
+
+        if ctk.get_appearance_mode() == "Dark":
+            ctk.set_appearance_mode("light")
+        else:
+            ctk.set_appearance_mode("dark")
+
+
+    

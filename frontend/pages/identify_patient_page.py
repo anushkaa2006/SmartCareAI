@@ -47,10 +47,12 @@ FONT_BODY    = "Segoe UI"
 
 class IdentifyPatientPage(ctk.CTkFrame):
 
-    def __init__(self, parent, go_back,patient_id=None):
+    def __init__(self, parent, go_back,patient_id=None, department_id=None, department_name=None):
         super().__init__(parent, fg_color=BG)
         self.go_back_command = go_back
         self.patient_id = patient_id
+        self.department_name =department_name
+        self.department_id = department_id
         self.pack(fill="both", expand=True)
 
         self.cap = None
