@@ -66,28 +66,12 @@ class IdentifyPatientPage(ctk.CTkFrame):
         # --- SWAPPED LAYOUT ---
         # LEFT PANE: Patient Details (Expands)
         self.left_pane = ctk.CTkFrame(self.split_container, fg_color="transparent")
-        self.left_pane.pack(side="left", fill="both", expand=True, padx=50, pady=40)
-
-        # RIGHT PANE: Camera (Fixed Width)
-        self.right_pane = ctk.CTkFrame(self.split_container, fg_color=SURFACE, width=420, corner_radius=0)
-        self.right_pane.pack(side="right", fill="y")
-        self.right_pane.pack_propagate(False)
-        
-        # Left border for the right pane
-        ctk.CTkFrame(self.right_pane, width=1, fg_color=BORDER).pack(side="left", fill="y")
+        self.left_pane.pack(fill="both", expand=True, padx=50, pady=40)
 
         self.build_form_pane()
-        self.build_camera_pane()
 
         if self.patient_id is not None:
-
             self.fetch_patient_details(self.patient_id)
-
-            self.camera_frame.pack_forget()
-
-            self.open_cam_btn.pack_forget()
-
-            self.capture_btn.pack_forget()
 
     def build_header(self):
         header = ctk.CTkFrame(self, fg_color=SURFACE, height=45, corner_radius=0)
@@ -118,29 +102,6 @@ class IdentifyPatientPage(ctk.CTkFrame):
         ctk.CTkLabel(brand_frame, text="⚕", font=(FONT_DISPLAY, 20), text_color=PRIMARY).pack(side="left", padx=(0, 6))
         ctk.CTkLabel(brand_frame, text="SMARTCARE ID", font=(FONT_DISPLAY, 14), text_color=TEXT).pack(side="left")
 
-    def build_camera_pane(self):
-        # Uses self.right_pane
-        ctk.CTkLabel(self.right_pane, text="🤖 Face Identification", font=(FONT_DISPLAY, 22), text_color=TEXT).pack(anchor="w", padx=30, pady=(40, 5))
-        ctk.CTkLabel(self.right_pane, text="Position patient's face and capture.", font=(FONT_BODY, 14), text_color=TEXT_SOFT).pack(anchor="w", padx=30, pady=(0, 30))
-
-        cam_container = ctk.CTkFrame(self.right_pane, fg_color="transparent")
-        cam_container.pack(fill="x", padx=30)
-
-        self.camera_frame = ctk.CTkFrame(cam_container, width=320, height=320, fg_color=("#111312", "#090A0A"), corner_radius=16)
-        self.camera_frame.pack()
-        self.camera_frame.pack_propagate(False)
-
-        self.camera_label = ctk.CTkLabel(self.camera_frame, text="◉ Camera offline", text_color=TEXT_FAINT, font=(FONT_BODY, 14))
-        self.camera_label.pack(fill="both", expand=True)
-
-        btn_frame = ctk.CTkFrame(self.right_pane, fg_color="transparent")
-        btn_frame.pack(fill="x", padx=30, pady=(30, 5))
-
-        self.open_cam_btn = ctk.CTkButton(btn_frame, text="📸 Open Camera", height=45, font=(FONT_DISPLAY, 14), fg_color=SURFACE_ALT, hover_color=BORDER, text_color=TEXT, command=self.open_camera)
-        self.open_cam_btn.pack(fill="x", pady=(0, 10))
-        self.capture_btn = ctk.CTkButton(btn_frame, text="✓ Capture Face", height=45, font=(FONT_DISPLAY, 14), fg_color=PRIMARY, hover_color=PRIMARY_H, text_color=("#FFFFFF", "#1A1C1B"), command=self.capture_face)
-        self.capture_btn.pack(fill="x")
-        ctk.CTkLabel(self.right_pane, text="(Or press the SPACE bar to capture)", text_color=TEXT_FAINT, font=(FONT_BODY, 12)).pack(pady=(10, 0))
 
     def build_form_pane(self):
         # Uses self.left_pane
@@ -151,8 +112,33 @@ class IdentifyPatientPage(ctk.CTkFrame):
         self.patient_card = ctk.CTkFrame(self.left_pane, fg_color=SURFACE, corner_radius=20, border_width=1, border_color=BORDER)
         self.patient_card.pack(fill="x", pady=(0, 20))
         ctk.CTkLabel(self.patient_card, text="👤 Patient Information", font=(FONT_DISPLAY, 20), text_color=TEXT).pack(anchor="w", padx=24, pady=(20, 15))
-        self.patient_info_label = ctk.CTkLabel(self.patient_card, text="No patient identified yet.\nPlease scan a face to retrieve details.", justify="left", font=(FONT_BODY, 15), text_color=TEXT_SOFT)
-        self.patient_info_label.pack(anchor="w", padx=24, pady=(0, 24))
+        self.info_frame = ctk.CTkFrame(self.patient_card,fg_color="transparent")
+        self.info_frame.pack(fill="x", padx=30, pady=(0,25))
+        self.info_labels = {}
+
+        for field in ["Patient ID", "Name", "Age", "Gender", "Phone"]:
+            row = ctk.CTkFrame(self.info_frame, fg_color="transparent")
+            row.pack(fill="x", pady=8)
+
+            ctk.CTkLabel(
+                row,
+                text=field,
+                width=120,
+                anchor="w",
+                font=(FONT_DISPLAY,15),
+                text_color=TEXT_SOFT
+            ).pack(side="left")
+
+            value = ctk.CTkLabel(
+                row,
+                text="--",
+                anchor="w",
+                font=(FONT_BODY,16),
+                text_color=TEXT
+            )
+            value.pack(side="left", padx=(20,0))
+
+            self.info_labels[field] = value
 
         self.department_card = ctk.CTkFrame(self.left_pane, fg_color=SURFACE, corner_radius=20, border_width=1, border_color=BORDER)
         self.department_card.pack(fill="x")
@@ -298,15 +284,12 @@ class IdentifyPatientPage(ctk.CTkFrame):
             patient = response.json()
             self.current_patient_id = patient["patientId"]
          
-            self.patient_info_label.configure(
-                text=
-                f"ID       : {patient['patientId']}\n\n"
-                f"Name     : {patient['name']}\n\n"
-                f"Age      : {patient['age']}\n\n"
-                f"Gender   : {patient['gender']}\n\n"
-                f"Phone    : {patient['phone']}",
-                text_color=TEXT
-            )
+            self.info_labels["Patient ID"].configure(text=patient["patientId"])
+            self.info_labels["Name"].configure(text=patient["name"])
+            self.info_labels["Age"].configure( text=str(patient["age"]))
+            self.info_labels["Gender"].configure(text=patient["gender"])
+            self.info_labels["Phone"].configure(text=patient["phone"])
+
             self.status_label.configure(
                 text="✅ Registered Patient",
                 text_color=SUCCESS
