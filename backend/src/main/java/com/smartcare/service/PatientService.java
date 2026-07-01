@@ -189,6 +189,21 @@ public class PatientService {
         String dob,
         String phone
     ){
-        return patientRepository.findByNameAndFatherSpouseNameAndDobAndPhone(name, fatherSpouseName, dob, phone);
-    }    
+        System.out.println("Searching:");
+        System.out.println("Name = " + name);
+        System.out.println("Father = " + fatherSpouseName);
+        System.out.println("DOB = " + dob);
+        System.out.println("Phone = " + phone);
+
+        Patient patient = patientRepository.findByNameAndFatherSpouseNameAndDobAndPhone(
+                name,
+                fatherSpouseName,
+                dob,
+                phone
+        );
+
+        System.out.println("Found = " + patient);
+
+        return patient;
+    }  
 }

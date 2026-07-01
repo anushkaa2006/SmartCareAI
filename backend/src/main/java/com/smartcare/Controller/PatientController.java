@@ -96,6 +96,13 @@ public class PatientController {
 
         @PostMapping("/check-existing")
         public ResponseEntity<Patient> checkExistingPatient(@RequestBody ExistingPatientCheckRequest request){
+
+                System.out.println("Name: " + request.getName());
+                System.out.println("Father: " + request.getFatherSpouseName());
+                System.out.println("DOB: " + request.getDob());
+                System.out.println("Phone: " + request.getPhone());
+
+                
                 Patient patient = patientService.checkExistingPatient(
                         request.getName(),
                         request.getFatherSpouseName(),

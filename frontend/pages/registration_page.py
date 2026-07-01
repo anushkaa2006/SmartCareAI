@@ -381,12 +381,16 @@ class RegistrationPage(ctk.CTkFrame):
             return
             
         try:
+            dob = self.dob.get().strip()
+            day,month,year = dob.split('/')
+            dob = f"{year}-{month}-{day}"
             payload = {
                 "name": self.full_name.get().strip(),
                 "fatherSpouseName": self.father_name.get().strip(),
-                "dob": self.dob.get().strip(),
+                "dob": dob,
                 "phone": self.phone.get().strip()
             }
+            print(payload)
             response = requests.post("http://localhost:9090/patients/check-existing",json=payload)
 
             print("Status:", response.status_code)
