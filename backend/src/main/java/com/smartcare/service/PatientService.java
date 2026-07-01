@@ -142,6 +142,7 @@ public class PatientService {
             Visit visit = new Visit();
 
         LocalDate today = LocalDate.now();
+        System.out.println("Department received = [" + department + "]");
         Department dept = departmentRepository.findByDepartmentName(department);
         if (dept == null) {
             throw new RuntimeException("Department not found");

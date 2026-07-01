@@ -36,6 +36,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
         self.go_back = go_back
         self.open_registration = open_registration
         self.open_face_update = open_face_update
+        self.department_map ={}
 
         self.pack(fill="both", expand=True)
         self.build_header()
@@ -146,3 +147,33 @@ class PatientRecoveryPage(ctk.CTkFrame):
             ctk.set_appearance_mode("light")
         else:
             ctk.set_appearance_mode("dark")
+
+
+    def load_departments(self):
+        try:
+            response = requests.get("http://localhost:9090/departments", timeout=5)
+            if response.status_code != 200:
+                return
+
+            departments = response.json()
+            department_names = []
+            self.department_map = {}
+
+            for dept in departments:
+                status = dept.get("departmentStatus", "")
+                if status.upper() == "ACTIVE":
+                    department_name = dept.get("departmentName","")
+                    department_id = dept.get("departmentId","")
+                    department_names.append(department_name)
+                    self.department_map[department_name]=department_id
+
+            if len(department_names) > 0:
+                self.department_dropdown.configure(values=department_names)
+                self.department_dropdown.set(department_names[0])
+            else:
+                self.department_dropdown.configure(values=["No Departments"])
+                self.department_dropdown.set("No Departments")
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
