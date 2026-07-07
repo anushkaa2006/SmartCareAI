@@ -671,6 +671,9 @@ class RegistrationPage(ctk.CTkFrame):
 
 
     def generate_existing_visit(self):
+        print("Department Name:", self.department_name)
+        print("Department ID:", self.department_id)
+
         payload={
             "patientId": self.patient["patientId"],
             "department":self.department_name
