@@ -1,10 +1,3 @@
-
-
-"""
-SmartCare ID — Patient Registration Page
-Theme: Midnight Ocean & Electric Teal
-"""
-
 import customtkinter as ctk
 from datetime import datetime
 import cv2
