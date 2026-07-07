@@ -197,7 +197,7 @@ class RegistrationPage(ctk.CTkFrame):
 
         self.phone    = self._entry(inner, "Mobile number *", row, 0, colspan=3)
         self.state    = self._entry(inner, "State *",         row, 3, colspan=2)
-        self.district = self._entry(inner, "District *",      row, 5, colspan=2)
+        self.district = self._dropdown(inner, "District *", self.load_states(),row , 3, colspan=2)
         row += 1
 
         self.address  = self._entry(inner, "Full address *", row, 0, colspan=5)
@@ -371,7 +371,7 @@ class RegistrationPage(ctk.CTkFrame):
     def validate_and_next(self):
         self.error_label1.configure(text="")
         mandatory = [self.full_name, self.age, self.father_name, self.phone,
-                     self.state, self.district, self.pincode, self.address]
+                     self.district, self.pincode, self.address]
         for f in mandatory:
             if not f.get().strip():
                 self.error_label1.configure(text="Please fill all mandatory fields marked with *")
@@ -379,6 +379,10 @@ class RegistrationPage(ctk.CTkFrame):
         
         if self.gender.get() == "Select" or self.category.get() == "Select":
             self.error_label1.configure(text="Please select valid options for gender & category")
+            return
+        
+        if self.state.get() == "Select State":
+            self.error_label1.configure(text = "Please select state")
             return
             
         if len(self.dob.get().split('/')) != 3:
@@ -388,6 +392,14 @@ class RegistrationPage(ctk.CTkFrame):
         if self.department.get() == "Select Department":
             self.error_label1.configure(text="Please select a visiting department")
             return
+        
+        phone = self.phone.get().strip()
+        if not phone.isdigit():
+            self.error_label1.configure(text="Invalid Mobile Number")
+            return
+        
+        if len(phone) !=10:
+            self.error_label1.configure(text="Invalid mobile number")
             
         try:
             dob = self.dob.get().strip()
@@ -428,6 +440,49 @@ class RegistrationPage(ctk.CTkFrame):
 
 
     # ---------- HARDWARE & API ----------
+
+    def load_states(self):
+        return [
+            "Select State",
+            "Andhra Pradesh",
+            "Arunachal Pradesh",
+            "Assam",
+            "Bihar",
+            "Chhattisgarh",
+            "Goa",
+            "Gujarat",
+            "Haryana",
+            "Himachal Pradesh",
+            "Jharkhand",
+            "Karnataka",
+            "Kerala",
+            "Madhya Pradesh",
+            "Maharashtra",
+            "Manipur",
+            "Meghalaya",
+            "Mizoram",
+            "Nagaland",
+            "Odisha",
+            "Punjab",
+            "Rajasthan",
+            "Sikkim",
+            "Tamil Nadu",
+            "Telangana",
+            "Tripura",
+            "Uttar Pradesh",
+            "Uttarakhand",
+            "West Bengal",
+            "Delhi",
+            "Jammu & Kashmir",
+            "Ladakh",
+            "Chandigarh",
+            "Puducherry",
+            "Andaman & Nicobar Islands",
+            "Dadra & Nagar Haveli and Daman & Diu",
+            "Lakshadweep"
+        ]
+
+
     def load_departments(self):
         default_deps = ["General Medicine", "Orthopedics", "Pediatrics", "Cardiology", "Neurology", "Oncology"]
         departments = ["Select Department"] + default_deps
