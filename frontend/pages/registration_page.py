@@ -170,8 +170,8 @@ class RegistrationPage(ctk.CTkFrame):
             inner.grid_columnconfigure(i, weight=1, uniform="col", pad=4)
 
         row = 0
-        self._section(inner, "Personal Details",
-                      "Basic identity information about the patient.", row); row += 1
+        self._section(inner, "Personal Details", row)
+        row += 1
 
         self.full_name   = self._entry(inner, "Full Name *", row, 0, colspan=3)
         self.gender      = self._dropdown(inner, "Gender *",
@@ -180,11 +180,8 @@ class RegistrationPage(ctk.CTkFrame):
                                           ["Select", "BPL", "General", "Ayushman", "JSY","PMJY", "Armed Forces","Freedom Fighter"], row, 6, colspan=2)
         row += 1
 
-        self.dob         = self._entry(inner, "DOB ", row, 0, colspan=2, placeholder="DD/MM/YYYY")
-        self.dob.bind(
-            "<FocusOut>",
-            self.calculate_age
-        )
+        self.dob         = self._entry(inner, "DOB * ", row, 0, colspan=2, placeholder="DD/MM/YYYY")
+        self.dob.bind("<FocusOut>",self.calculate_age)
         self.age         = self._entry(inner, "Age *", row, 2, colspan=1)
         self.father_name = self._entry(inner, "Father / Spouse Name *", row, 4, colspan=3)
         row += 1
@@ -192,12 +189,12 @@ class RegistrationPage(ctk.CTkFrame):
         ctk.CTkFrame(inner, height=1, fg_color=BORDER_SOFT).grid(
             row=row, column=0, columnspan=8, sticky="ew", pady=(10, 4)); row += 1
 
-        self._section(inner, "Contact & Address",
-                      "Where can we reach the patient if needed?", row); row += 1
+        self._section(inner, "Contact & Address",row)
+        row += 1
 
         self.phone    = self._entry(inner, "Mobile number *", row, 0, colspan=3)
-        self.state    = self._entry(inner, "State *",         row, 3, colspan=2)
-        self.district = self._dropdown(inner, "District *", self.load_states(),row , 3, colspan=2)
+        self.state    = self._dropdown(inner, "State *",self.load_states(), row, 3, colspan=2)
+        self.district = self._entry(inner, "District *", row,5, colspan=2)
         row += 1
 
         self.address  = self._entry(inner, "Full address *", row, 0, colspan=5)
@@ -225,7 +222,7 @@ class RegistrationPage(ctk.CTkFrame):
             text_color=("#FFFFFF", "#0B1121"), command=self.validate_and_next,
         ).pack(side="right")
 
-    def _section(self, parent, title, subtitle, row):
+    def _section(self, parent, title, row, subtitle=None):
         wrap = ctk.CTkFrame(parent, fg_color="transparent")
         wrap.grid(row=row, column=0, columnspan=8, sticky="ew", pady=(4, 6))
         chip = ctk.CTkFrame(wrap, fg_color=PRIMARY_SOFT, corner_radius=6, width=4, height=24)
@@ -234,7 +231,9 @@ class RegistrationPage(ctk.CTkFrame):
         text = ctk.CTkFrame(wrap, fg_color="transparent")
         text.pack(side="left", fill="x", expand=True)
         ctk.CTkLabel(text, text=title, font=(FONT_DISPLAY, 15), text_color=TEXT).pack(anchor="w")
-        ctk.CTkLabel(text, text=subtitle, font=(FONT_BODY, 12), text_color=TEXT_FAINT).pack(anchor="w")
+        if subtitle:
+            ctk.CTkLabel(text, text=subtitle, font=(FONT_BODY, 12), text_color=TEXT_FAINT).pack(anchor="w")
+
 
     def _entry(self, parent, label, row, col, colspan=1, placeholder=""):
         wrap = ctk.CTkFrame(parent, fg_color="transparent")
@@ -400,6 +399,15 @@ class RegistrationPage(ctk.CTkFrame):
         
         if len(phone) !=10:
             self.error_label1.configure(text="Invalid mobile number")
+            return
+        
+        pincode = self.pincode.get().strip()
+        if not pincode.isdigit() :
+            self.error_label1.configure(text="Invalid pincode")
+            return
+        if len(pincode)!= 6:
+            self.error_label1.configure(text="Invalid pincode")
+            return
             
         try:
             dob = self.dob.get().strip()
