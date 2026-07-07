@@ -7,23 +7,28 @@ from services.face_identifier import FaceIdentifier
 # =====================================================================
 # DESIGN TOKENS  (Light, Dark) - Sophisticated Nordic Sage & Warm Stone
 # =====================================================================
-BG          = ("#F0F4F8", "#0B1121")  # Soft ice blue / Deep midnight navy
-SURFACE     = ("#FFFFFF", "#151E32")  # Pure white / Rich navy
-SURFACE_ALT = ("#E2E8F0", "#1E293B")  # Soft slate / Elevated slate blue
-BORDER      = ("#CBD5E1", "#334155")  # Light slate border / Dark slate border
-BORDER_SOFT = ("#E2E8F0", "#1E293B")  # Softer boundary
+BG          = ("#F0F4F8", "#0B1121") 
+SURFACE     = ("#FFFFFF", "#151E32")  
+SURFACE_ALT = ("#E2E8F0", "#1E293B") 
+BORDER      = ("#CBD5E1", "#334155")  
+BORDER_SOFT = ("#E2E8F0", "#1E293B")  
 
-PRIMARY     = ("#0D9488", "#14B8A6")  # Electric Teal (Light / Dark)
-PRIMARY_H   = ("#0F766E", "#0D9488")  # Hover Teal
-PRIMARY_SOFT= ("#CCFBF1", "#134E4A")  # Very pale teal / Deepest teal green
 
-SUCCESS     = ("#10B981", "#10B981")  # Emerald
-WARNING     = ("#F59E0B", "#FBBF24")  # Amber
-DANGER      = ("#EF4444", "#F87171")  # Coral Red
+PRIMARY     = ("#0D9488", "#14B8A6")  
+PRIMARY_H   = ("#0F766E", "#0D9488")  
+PRIMARY_SOFT= ("#CCFBF1", "#134E4A")  
 
-TEXT        = ("#0F172A", "#F8FAFC")  # Almost black / Crisp off-white
-TEXT_SOFT   = ("#475569", "#94A3B8")  # Slate gray / Light slate
-TEXT_FAINT  = ("#64748B", "#64748B")  # Mid slate
+SUCCESS     = ("#10B981", "#10B981")  
+WARNING     = ("#F59E0B", "#FBBF24")  
+DANGER      = ("#EF4444", "#F87171")  
+SUCCESS_H   = ("#426956", "#74B395")  
+
+TEXT        = ("#0F172A", "#F8FAFC")  
+TEXT_SOFT   = ("#475569", "#94A3B8")  
+TEXT_FAINT  = ("#64748B", "#64748B")  
+
+FONT_DISPLAY = "Segoe UI Semibold"
+FONT_BODY    = "Segoe UI"
 
 
 class LandingPage(ctk.CTkFrame):

@@ -44,7 +44,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
 
     
     def build_header(self):
-        header = ctk.CTkFrame(self, fg_color=SURFACE, height=45, corner_radius=0)
+        header = ctk.CTkFrame(self, fg_color=PRIMARY, height=45, corner_radius=0)
         header.pack(fill="x")
         header.pack_propagate(False)
         ctk.CTkFrame(self, height=1, fg_color=BORDER, corner_radius=0).pack(fill="x")
@@ -69,7 +69,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
 
         brand_frame = ctk.CTkFrame(header, fg_color="transparent")
         brand_frame.place(relx=0.5, rely=0.5, anchor="center")
-        ctk.CTkLabel(brand_frame, text="⚕", font=(FONT_DISPLAY, 20), text_color=PRIMARY).pack(side="left", padx=(0, 6))
+        ctk.CTkLabel(brand_frame, text="⚕", font=(FONT_DISPLAY, 20), text_color=SURFACE).pack(side="left", padx=(0, 6))
         ctk.CTkLabel(brand_frame, text="SMARTCARE ID", font=(FONT_DISPLAY, 14), text_color=TEXT).pack(side="left")
 
 

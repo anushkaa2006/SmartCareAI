@@ -23,26 +23,27 @@ import qrcode
 # =====================================================================
 # DESIGN TOKENS
 # =====================================================================
-BG          = ("#F7F7F5", "#1A1C1B")  
-SURFACE     = ("#FFFFFF", "#232625")  
-SURFACE_ALT = ("#F0F0EB", "#2E3330")  
-BORDER      = ("#E0E0D8", "#404743")  
-BORDER_SOFT = ("#EBEBE6", "#353B38")  
+BG          = ("#F0F4F8", "#0B1121")  # Soft ice blue / Deep midnight navy
+SURFACE     = ("#FFFFFF", "#151E32")  # Pure white / Rich navy
+SURFACE_ALT = ("#E2E8F0", "#1E293B")  # Soft slate / Elevated slate blue
+BORDER      = ("#CBD5E1", "#334155")  # Light slate border / Dark slate border
+BORDER_SOFT = ("#E2E8F0", "#1E293B")  # Softer boundary
 
-PRIMARY     = ("#78938A", "#8BA89F")  
-PRIMARY_H   = ("#637C74", "#9EBEB4")  
-PRIMARY_SOFT= ("#E8F0ED", "#263B34")  
+PRIMARY     = ("#0D9488", "#14B8A6")  # Electric Teal (Light / Dark)
+PRIMARY_H   = ("#0F766E", "#0D9488")  # Hover Teal
+PRIMARY_SOFT= ("#CCFBF1", "#134E4A")  # Very pale teal / Deepest teal green
 
-SUCCESS     = ("#52826B", "#629E82")  
-WARNING     = ("#B58C57", "#D1A466")  
-DANGER      = ("#AD5C5C", "#CC6D6D")  
+SUCCESS     = ("#10B981", "#10B981")  # Emerald
+WARNING     = ("#F59E0B", "#FBBF24")  # Amber
+DANGER      = ("#EF4444", "#F87171")  # Coral Red
 
-TEXT        = ("#2D302E", "#F0F2F1")  
-TEXT_SOFT   = ("#69706C", "#A9B3AE")  
-TEXT_FAINT  = ("#98A19D", "#7A827E")  
+TEXT        = ("#0F172A", "#F8FAFC")  # Almost black / Crisp off-white
+TEXT_SOFT   = ("#475569", "#94A3B8")  # Slate gray / Light slate
+TEXT_FAINT  = ("#64748B", "#64748B")  # Mid slate
 
 FONT_DISPLAY = "Segoe UI Semibold"
 FONT_BODY    = "Segoe UI"
+
 
 
 class IdentifyPatientPage(ctk.CTkFrame):
@@ -76,7 +77,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
             self.fetch_patient_details(self.patient_id)
 
     def build_header(self):
-        header = ctk.CTkFrame(self, fg_color=SURFACE, height=45, corner_radius=0)
+        header = ctk.CTkFrame(self, fg_color=PRIMARY, height=45, corner_radius=0)
         header.pack(fill="x")
         header.pack_propagate(False)
         ctk.CTkFrame(self, height=1, fg_color=BORDER, corner_radius=0).pack(fill="x")
@@ -101,7 +102,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
         brand_frame = ctk.CTkFrame(header, fg_color="transparent")
         brand_frame.place(relx=0.5, rely=0.5, anchor="center")
-        ctk.CTkLabel(brand_frame, text="⚕", font=(FONT_DISPLAY, 20), text_color=PRIMARY).pack(side="left", padx=(0, 6))
+        ctk.CTkLabel(brand_frame, text="⚕", font=(FONT_DISPLAY, 20), text_color=SURFACE).pack(side="left", padx=(0, 6))
         ctk.CTkLabel(brand_frame, text="SMARTCARE ID", font=(FONT_DISPLAY, 14), text_color=TEXT).pack(side="left")
 
 
