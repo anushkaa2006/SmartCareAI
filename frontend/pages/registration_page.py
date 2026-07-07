@@ -439,6 +439,9 @@ class RegistrationPage(ctk.CTkFrame):
                 if answer:
                     self.patient = patient
                     self.update_mode =True
+
+                    self.department_name = self.department.get()
+                   
                     self.enable_update_mode()
                     return
             self.show_page2()
@@ -522,7 +525,6 @@ class RegistrationPage(ctk.CTkFrame):
             img = Image.fromarray(frame)
             
             # --- Aspect Ratio Fix ---
-            # RGB color (4, 7, 13) matches the #04070D deep midnight background perfectly
             img = ImageOps.pad(img, (900, 350), color=(4, 7, 13))
             
             ctk_image = ctk.CTkImage(light_image=img, dark_image=img, size=(900, 350))
