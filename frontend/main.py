@@ -35,8 +35,7 @@ def show_patient_recovery():
     if current_page:
         current_page.destroy()
     
-    current_page = PatientRecoveryPage(app,go_back= show_landing,
-                                       open_registration= show_registration, open_face_update= show_face_update)
+    current_page = PatientRecoveryPage(app,go_back= show_landing,open_registration= show_registration, open_face_update= show_face_update)
     
 
 def show_face_update(patient, department_id, department_name):
