@@ -93,7 +93,7 @@ class RegistrationPage(ctk.CTkFrame):
         
         ctk.CTkButton(
             left_frame, text="← Back", width=70, height=28, corner_radius=6,
-            fg_color="transparent", text_color=TEXT_SOFT, hover_color=SURFACE_ALT, 
+            fg_color="transparent", text_color=SURFACE, hover_color=SURFACE_ALT, 
             font=(FONT_BODY, 12), command=self.go_back
         ).pack(side="left", pady=8)
 
@@ -102,7 +102,7 @@ class RegistrationPage(ctk.CTkFrame):
         
         self.theme_switch = ctk.CTkSwitch(
             right_frame, text="Dark mode", command=self.toggle_theme, 
-            progress_color=PRIMARY, font=(FONT_BODY, 11), text_color=TEXT_SOFT
+            progress_color=PRIMARY, font=(FONT_BODY, 11), text_color=SURFACE
         )
         self.theme_switch.pack(side="right", pady=10)
 
@@ -163,14 +163,12 @@ class RegistrationPage(ctk.CTkFrame):
             inner.grid_columnconfigure(i, weight=1, uniform="col", pad=4)
 
         row = 0
-        self._section(inner, "Personal Details", row)
+        self._section(inner, "Personal Details", row,"Patient personal information")
         row += 1
 
         self.full_name   = self._entry(inner, "Full Name *", row, 0, colspan=3)
-        self.gender      = self._dropdown(inner, "Gender *",
-                                          ["Select", "Male", "Female", "Other"], row, 4, colspan=2)
-        self.category    = self._dropdown(inner, "Category *",
-                                          ["Select", "BPL", "General", "Ayushman", "JSY","PMJY", "Armed Forces","Freedom Fighter"], row, 6, colspan=2)
+        self.gender      = self._dropdown(inner, "Gender *",["Select", "Male", "Female", "Other"], row, 4, colspan=2)
+        self.category    = self._dropdown(inner, "Category *",["Select", "BPL", "General", "Ayushman", "JSY","PMJY", "Armed Forces","Freedom Fighter"], row, 6, colspan=2)
         row += 1
 
         self.dob         = self._entry(inner, "DOB * ", row, 0, colspan=2, placeholder="DD/MM/YYYY")
@@ -179,10 +177,9 @@ class RegistrationPage(ctk.CTkFrame):
         self.father_name = self._entry(inner, "Father / Spouse Name *", row, 4, colspan=3)
         row += 1
 
-        ctk.CTkFrame(inner, height=1, fg_color=BORDER_SOFT).grid(
-            row=row, column=0, columnspan=8, sticky="ew", pady=(10, 4)); row += 1
+        ctk.CTkFrame(inner, height=1, fg_color=BORDER_SOFT).grid(row=row, column=0, columnspan=8, sticky="ew", pady=(10, 4)); row += 1
 
-        self._section(inner, "Contact & Address",row)
+        self._section(inner, "Contact & Address",row, "Basic contact information")
         row += 1
 
         self.phone    = self._entry(inner, "Mobile number *", row, 0, colspan=3)
@@ -208,7 +205,7 @@ class RegistrationPage(ctk.CTkFrame):
         
         self.error_label1 = ctk.CTkLabel(action, text="", text_color=DANGER, font=(FONT_BODY, 12))
         self.error_label1.pack(side="left")
-        
+         
         ctk.CTkButton(
             action, text="Continue  →", height=40, corner_radius=12,
             font=(FONT_DISPLAY, 14), fg_color=PRIMARY, hover_color=PRIMARY_H,
@@ -236,8 +233,7 @@ class RegistrationPage(ctk.CTkFrame):
         entry = ctk.CTkEntry(
             wrap, height=36, corner_radius=10, 
             fg_color=SURFACE_ALT, border_color=BORDER, border_width=1,
-            text_color=TEXT, placeholder_text=placeholder, font=(FONT_BODY, 13),
-        )
+            text_color=TEXT, placeholder_text=placeholder, font=(FONT_BODY, 13),)
         entry.pack(fill="x")
         return entry
 
@@ -251,8 +247,7 @@ class RegistrationPage(ctk.CTkFrame):
             fg_color=SURFACE_ALT, button_color=SURFACE_ALT,
             button_hover_color=BORDER, text_color=TEXT,
             dropdown_fg_color=SURFACE, dropdown_text_color=TEXT,
-            font=(FONT_BODY, 13),
-        )
+            font=(FONT_BODY, 13),)
         dd.pack(fill="x")
         return dd
 
@@ -427,8 +422,7 @@ class RegistrationPage(ctk.CTkFrame):
                     "Existing Patient Found",
                     f"""A patient with these details already exists.
                     Patient ID: {patient['patientId']}
-                    Do you want to update the face for this patient instead of creating a new registration?"""
-                )
+                    Do you want to update the face for this patient instead of creating a new registration?""")
                 if answer:
                     self.patient = patient
                     self.update_mode =True
@@ -956,9 +950,6 @@ class RegistrationPage(ctk.CTkFrame):
             hover_color=PRIMARY_H,
             command=self.show_page2
         ).pack(pady=40)
-    
-    
-
 
 if __name__ == "__main__":
     ctk.set_appearance_mode("light")

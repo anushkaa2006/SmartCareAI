@@ -87,7 +87,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
         
         ctk.CTkButton(
             left_frame, text="← Back", width=70, height=28, corner_radius=6,
-            fg_color="transparent", text_color=TEXT_SOFT, hover_color=SURFACE_ALT, 
+            fg_color="transparent", text_color=SURFACE, hover_color=SURFACE_ALT, 
             font=(FONT_BODY, 12), command=self.go_back_safe
         ).pack(side="left", pady=8)
 
@@ -96,8 +96,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
         
         self.theme_switch = ctk.CTkSwitch(
             right_frame, text="Dark mode", command=self.toggle_theme, 
-            progress_color=PRIMARY, font=(FONT_BODY, 11), text_color=TEXT_SOFT
-        )
+            progress_color=PRIMARY, font=(FONT_BODY, 11), text_color=SURFACE)
         self.theme_switch.pack(side="right", pady=10)
 
         brand_frame = ctk.CTkFrame(header, fg_color="transparent")
@@ -163,51 +162,6 @@ class IdentifyPatientPage(ctk.CTkFrame):
         except: pass
         if self.cap is not None: self.cap.release()
         self.go_back_command()
-
-
-    def open_camera(self):
-        self.status_label.configure(text="Opening camera...", text_color=WARNING)
-        if self.cap is not None: self.cap.release()
-        self.cap = cv2.VideoCapture(0)
-        self.winfo_toplevel().bind('<space>', self._handle_spacebar_capture)
-        self.show_camera()
-
-
-    def _handle_spacebar_capture(self, event=None):
-        if self.cap is not None: self.capture_face()
-
-        
-    def show_camera(self):
-        if self.cap is None: return
-        ret, frame = self.cap.read()
-        if ret:
-            frame = cv2.flip(frame, 1)
-            self.current_frame = frame.copy()
-            frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            img = Image.fromarray(frame)
-            img = ImageOps.pad(img, (320, 320), color=(17, 19, 18))
-            ctk_image = ctk.CTkImage(light_image=img, dark_image=img, size=(320, 320))
-            self.camera_label.configure(image=ctk_image, text="")
-            self.camera_label.image = ctk_image
-        self.after(33, self.show_camera)
-
-
-
-    def capture_face(self):
-        if self.current_frame is None:
-            messagebox.showerror("Error", "Please open the camera first!")
-            return
-        try: self.winfo_toplevel().unbind('<space>')
-        except: pass
-        self.camera_frame.configure(border_width=4, border_color=SUCCESS)
-        self.after(250, lambda: self.camera_frame.configure(border_width=0))
-        image_path = "captured_faces/registered_patient.jpg"
-        os.makedirs("captured_faces", exist_ok=True)
-        cv2.imwrite(image_path, self.current_frame)
-        if self.cap:
-            self.cap.release()
-            self.cap = None
-        self.generate_embedding(image_path)
 
 
     # ... (Rest of the logic methods remain identical)

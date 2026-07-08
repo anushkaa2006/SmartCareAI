@@ -54,7 +54,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
         
         ctk.CTkButton(
             left_frame, text="← Back", width=70, height=28, corner_radius=6,
-            fg_color="transparent", text_color=TEXT_SOFT, hover_color=SURFACE_ALT, 
+            fg_color="transparent", text_color=SURFACE, hover_color=SURFACE_ALT, 
             font=(FONT_BODY, 12), command=self.go_back
         ).pack(side="left", pady=8)
 
@@ -63,7 +63,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
         
         self.theme_switch = ctk.CTkSwitch(
             right_frame, text="Dark mode", command=self.toggle_theme, 
-            progress_color=PRIMARY, font=(FONT_BODY, 11), text_color=TEXT_SOFT
+            progress_color=PRIMARY, font=(FONT_BODY, 11), text_color=SURFACE
         )
         self.theme_switch.pack(side="right", pady=10)
 
@@ -74,8 +74,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
 
 
     def build_ui(self):
-        card = ctk.CTkFrame(self,fg_color=SURFACE,
-                            corner_radius= 20, width=700,height=500)
+        card = ctk.CTkFrame(self,fg_color=SURFACE,corner_radius= 20, width=700,height=500)
         
         card.place(relx=0.5,rely=0.5,anchor= "center")
 
@@ -94,9 +93,7 @@ class PatientRecoveryPage(ctk.CTkFrame):
             placeholder_text="Enter Patient ID"
         )
 
-        self.patient_id.pack(
-            pady=20
-        )
+        self.patient_id.pack(pady=20)
 
         ctk.CTkButton(
             card,
