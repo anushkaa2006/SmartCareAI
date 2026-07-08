@@ -213,10 +213,10 @@ class PatientRecoveryPage(ctk.CTkFrame):
 
     def toggle_theme(self):
 
-        if ctk.get_appearance_mode() == "Dark":
-            ctk.set_appearance_mode("light")
-        else:
+        if self.theme_switch.get() == 1:
             ctk.set_appearance_mode("dark")
+        else:
+            ctk.set_appearance_mode("light")
 
 
     
