@@ -13,8 +13,11 @@ public class HospitalConfig {
 
     private Integer paymentFlag;
 
-    public HospitalConfig() {
-    }
+    private Integer validityDays;
+
+    private String hospitalName;
+
+    private String active;
 
     public Integer getConfigId() {
         return configId;
@@ -30,5 +33,29 @@ public class HospitalConfig {
 
     public void setPaymentFlag(Integer paymentFlag) {
         this.paymentFlag = paymentFlag;
+    }
+
+    public Integer getValidityDays() {
+        return validityDays;
+    }
+
+    public void setValidityDays(Integer validityDays) {
+        this.validityDays = validityDays;
+    }
+
+    public String getHospitalName() {
+        return hospitalName;
+    }
+
+    public void setHospitalName(String hospitalName) {
+        this.hospitalName = hospitalName;
+    }
+
+    public String getActive() {
+        return active;
+    }
+
+    public void setActive(String active) {
+        this.active = active;
     }
 }

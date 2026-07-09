@@ -7,6 +7,7 @@ import com.smartcare.model.DepartmentFee;
 
 @Repository
 public interface DepartmentFeeRepository
-        extends JpaRepository<DepartmentFee, String> {
+        extends JpaRepository<DepartmentFee,String> {
 
+    DepartmentFee findByDepartmentId(String departmentId);
 }

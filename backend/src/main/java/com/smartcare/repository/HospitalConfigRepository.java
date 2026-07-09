@@ -6,7 +6,7 @@ import org.springframework.stereotype.Repository;
 import com.smartcare.model.HospitalConfig;
 
 @Repository
-public interface HospitalConfigRepository
-        extends JpaRepository<HospitalConfig, Integer> {
+public interface HospitalConfigRepository extends JpaRepository<HospitalConfig,Integer> {
 
+    HospitalConfig findByActive(String active);
 }

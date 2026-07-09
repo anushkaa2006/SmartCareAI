@@ -7,7 +7,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "department_fee")
+@Table(name="department_fee")
 public class DepartmentFee {
 
     @Id
@@ -15,8 +15,7 @@ public class DepartmentFee {
 
     private BigDecimal consultationFee;
 
-    public DepartmentFee() {
-    }
+    private String active;
 
     public String getDepartmentId() {
         return departmentId;
@@ -32,5 +31,13 @@ public class DepartmentFee {
 
     public void setConsultationFee(BigDecimal consultationFee) {
         this.consultationFee = consultationFee;
+    }
+
+    public String getActive() {
+        return active;
+    }
+
+    public void setActive(String active) {
+        this.active = active;
     }
 }

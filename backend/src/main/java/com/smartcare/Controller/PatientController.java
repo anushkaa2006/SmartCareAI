@@ -6,7 +6,7 @@ import com.smartcare.dto.PatientRequest;
 import com.smartcare.dto.PatientResponse;
 import com.smartcare.model.FaceData;
 import com.smartcare.model.Patient;
-import com.smartcare.repository.FaceDataRepository;
+import com.smartcare.service.FaceService;
 import com.smartcare.service.PatientService;
 import com.smartcare.service.PatientVerificationService;
 
@@ -15,9 +15,6 @@ import com.smartcare.repository.PatientRepository;
 import com.smartcare.dto.ExistingPatientCheckRequest;
 import org.springframework.http.ResponseEntity;
 
-
-import java.time.LocalDate;
-import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -32,7 +29,7 @@ public class PatientController {
     private PatientVerificationService patientVerificationService;
 
     @Autowired
-    private FaceDataRepository faceDataRepository;
+    private FaceService faceService;
 
     @Autowired
     private PatientRepository patientRepository;        
@@ -42,47 +39,20 @@ public class PatientController {
         return patientService.registerPatient(request);
     }
     @PostMapping("/face/save")
-    public String saveFace(@RequestBody FaceDataRequest request) {
-            
-
-        FaceData faceData = new FaceData();
-
-        faceData.setFaceId(UUID.randomUUID().toString());
-        faceData.setPatientId(request.getPatientId());
-        faceData.setImagePath(request.getImagePath());
-        faceData.setEmbeddingVector(request.getEmbeddingVector());
-        faceData.setEnrollmentDate(LocalDate.now().toString());
-        System.out.println("Patient ID: " + request.getPatientId());
-        System.out.println("Embedding Length: "+ request.getEmbeddingVector().length());
-        System.out.println("First 100 chars: " + request.getEmbeddingVector().substring(0, 100));
-                       
-        faceDataRepository.save(faceData);
-
-        return "Face Saved Successfully";
+        public String saveFace(@RequestBody FaceDataRequest request) {
+        return faceService.saveFace(request);
         }
 
 
         @PutMapping("/face/update")
-
-        public String updateFace(@RequestBody FaceDataRequest request){
-                FaceData faceData = faceDataRepository.findByPatientId(request.getPatientId());
-                if (faceData==null){
-                        return "Face record not found";
+                public String updateFace(@RequestBody FaceDataRequest request) {
+                return faceService.updateFace(request);
                 }
-                faceData.setImagePath(request.getImagePath());
-                faceData.setEmbeddingVector(request.getEmbeddingVector());
-                faceData.setEnrollmentDate(LocalDate.now().toString());
-
-                faceDataRepository.save(faceData);
-
-                return "Face Updated Successfully";
-        }
 
 
         @GetMapping("/faces")
-
-        public List<FaceData> getAllFaces() {
-                return faceDataRepository.findAll();
+                public List<FaceData> getAllFaces() {
+                return faceService.getAllFaces();
         }
         @GetMapping("/{patientId}")
         public Patient getPatientById(@PathVariable String patientId) {

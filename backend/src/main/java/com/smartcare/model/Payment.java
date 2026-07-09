@@ -2,10 +2,12 @@ package com.smartcare.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import lombok.val;
 
 @Entity
 @Table(name = "payment")
@@ -29,6 +31,12 @@ public class Payment {
     private String receiptNumber;
 
     private String paymentStatus;
+
+    private LocalDateTime createdAt;
+
+    private LocalDate validTill;
+
+
 
     public Payment() {
     }
@@ -103,5 +111,17 @@ public class Payment {
 
     public void setPaymentStatus(String paymentStatus) {
         this.paymentStatus = paymentStatus;
+    }
+    public LocalDateTime getCreatedAt(){
+        return createdAt;
+    }
+    public void setCreatedAt(LocalDateTime createdAt){
+        this.createdAt = createdAt;
+    }
+    public LocalDate getValidTill(){
+        return validTill;
+    }
+    public void setValidTill(LocalDate validTill){
+        this.validTill = validTill;
     }
 }
