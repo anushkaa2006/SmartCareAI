@@ -8,10 +8,13 @@ import com.smartcare.model.FaceData;
 import com.smartcare.model.Patient;
 import com.smartcare.repository.FaceDataRepository;
 import com.smartcare.service.PatientService;
+import com.smartcare.service.PatientVerificationService;
+
 import java.util.List;
 import com.smartcare.repository.PatientRepository;
 import com.smartcare.dto.ExistingPatientCheckRequest;
 import org.springframework.http.ResponseEntity;
+
 
 import java.time.LocalDate;
 import java.util.UUID;
@@ -24,6 +27,9 @@ import org.springframework.web.bind.annotation.*;
 public class PatientController {
     @Autowired
     private PatientService patientService;
+
+    @Autowired
+    private PatientVerificationService patientVerificationService;
 
     @Autowired
     private FaceDataRepository faceDataRepository;
@@ -97,13 +103,8 @@ public class PatientController {
         @PostMapping("/check-existing")
         public ResponseEntity<Patient> checkExistingPatient(@RequestBody ExistingPatientCheckRequest request){
 
-                System.out.println("Name: " + request.getName());
-                System.out.println("Father: " + request.getFatherSpouseName());
-                System.out.println("DOB: " + request.getDob());
-                System.out.println("Phone: " + request.getPhone());
-
                 
-                Patient patient = patientService.checkExistingPatient(
+                Patient patient = patientVerificationService.verifyByPersonalDetails(
                         request.getName(),
                         request.getFatherSpouseName(),
                         request.getDob(),
