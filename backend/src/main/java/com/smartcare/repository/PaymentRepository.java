@@ -1,6 +1,6 @@
 package com.smartcare.repository;
 
-import java.time.LocalDate;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -11,28 +11,35 @@ import com.smartcare.model.Payment;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment, String> {
 
-    // Latest payment made by a patient (Flag 1)
+    /**
+     * Used for Payment Flag = 1
+     * Returns the latest successful payment of the patient.
+     */
     @Query("""
-        SELECT MAX(p.paymentDate)
+        SELECT p
         FROM Payment p
         WHERE p.patientId = :patientId
         AND p.paymentStatus = 'SUCCESS'
+        ORDER BY p.paymentDate DESC
     """)
-    LocalDate findLastPaymentDate(String patientId);
+    Optional<Payment> findLatestPayment(String patientId);
 
 
-    // Latest payment made by a patient in a department (Flag 2)
+    /**
+     * Used for Payment Flag = 2
+     * Returns the latest successful payment of the patient
+     * for a particular department.
+     */
     @Query("""
-        SELECT MAX(p.paymentDate)
+        SELECT p
         FROM Payment p
         WHERE p.patientId = :patientId
         AND p.departmentId = :departmentId
         AND p.paymentStatus = 'SUCCESS'
+        ORDER BY p.paymentDate DESC
     """)
-    LocalDate findLastPaymentDateByDepartment(
+    Optional<Payment> findLatestDepartmentPayment(
             String patientId,
             String departmentId
     );
-    Payment findTopByReceiptNumber(String receiptNumber);
-    long countByPaymentDate(LocalDate paymentDate);
 }

@@ -7,7 +7,6 @@ import java.time.LocalDateTime;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
-import lombok.val;
 
 @Entity
 @Table(name = "payment")
