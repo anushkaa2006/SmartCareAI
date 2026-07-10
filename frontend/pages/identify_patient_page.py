@@ -150,7 +150,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
         self.department_map = {}
         self.load_departments()
-        self.proceed_btn = ctk.CTkButton(self.department_card, text="Proceed To Visit →", width=220, height=45, font=(FONT_DISPLAY, 14), fg_color=PRIMARY, hover_color=PRIMARY_H, text_color=("#FFFFFF", "#1A1C1B"), command=lambda: self.generate_visit(self.current_patient_id))
+        self.proceed_btn = ctk.CTkButton(self.department_card, text="Continue →", width=220, height=45, font=(FONT_DISPLAY, 14), fg_color=PRIMARY, hover_color=PRIMARY_H, text_color=("#FFFFFF", "#1A1C1B"), command=self.validate_payment)
         self.proceed_btn.pack(anchor="w", padx=24, pady=(0, 24))
 
     # --- RETAINED LOGIC ---
@@ -307,6 +307,37 @@ class IdentifyPatientPage(ctk.CTkFrame):
             self.registration_success(data["patientId"], data["visitId"], data["queueNumber"], department_name)
         except Exception as e:
             messagebox.showerror("Network Error", "Could not connect to visit generation API.")
+
+
+    def validate_payment(self):
+
+        department_name = self.department_dropdown.get()
+        department_id = self.department_map.get(department_name)
+
+        payload = {
+            "patientId": self.current_patient_id,
+            "departmentId": department_id
+        }
+
+        try:
+            response = requests.post(
+                "http://localhost:9090/payment/validate",
+                json=payload
+            )
+
+            if response.status_code != 200:
+                messagebox.showerror(
+                    "Error",
+                    "Unable to validate payment."
+                )
+                return
+
+            data = response.json()
+
+            print(data)
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
     
     def registration_success(self, patient_id, visit_id, queue_number, department):
         qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)

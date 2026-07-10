@@ -15,6 +15,7 @@ import com.smartcare.enums.WorkflowAction;
 import com.smartcare.model.HospitalConfig;
 import com.smartcare.model.Payment;
 import com.smartcare.enums.PaymentFlag;
+import com.smartcare.repository.PaymentRepository;
 
 @Service
 public class PaymentValidationService {
@@ -33,13 +34,13 @@ public class PaymentValidationService {
 
         HospitalConfig config = hospitalConfigService.getConfiguration();
 
-       if (config.getPaymentFlag() == PaymentFlag.HOSPITAL_WISE.getValue()) {{
+       if (config.getPaymentFlag() == PaymentFlag.HOSPITAL_WISE.getValue()) {
             return validateHospitalWise(request, config);
         }
 
         return validateDepartmentWise(request, config);
-    }
-
+    
+        }
 
     private PaymentValidationResponse validateHospitalWise(
             PaymentValidationRequest request,
@@ -170,5 +171,5 @@ public class PaymentValidationService {
     private BigDecimal getConsultationFee(String departmentId) {
         return departmentFeeService.getConsultationFee(departmentId);
     }
-    
+        
 }
