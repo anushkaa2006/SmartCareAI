@@ -14,6 +14,7 @@ import com.smartcare.enums.PaymentStatus;
 import com.smartcare.enums.WorkflowAction;
 import com.smartcare.model.HospitalConfig;
 import com.smartcare.model.Payment;
+import com.smartcare.enums.PaymentFlag;
 
 @Service
 public class PaymentValidationService {
@@ -32,7 +33,7 @@ public class PaymentValidationService {
 
         HospitalConfig config = hospitalConfigService.getConfiguration();
 
-        if(config.getPaymentFlag() == 1){
+       if (config.getPaymentFlag() == PaymentFlag.HOSPITAL_WISE.getValue()) {{
             return validateHospitalWise(request, config);
         }
 
@@ -44,12 +45,8 @@ public class PaymentValidationService {
             PaymentValidationRequest request,
             HospitalConfig config) {
 
-        BigDecimal consultationFee =
-                departmentFeeService.getConsultationFee(
-                        request.getDepartmentId());
-
-        Optional<Payment> payment =
-                paymentRepository
+        BigDecimal consultationFee = getConsultationFee(request.getDepartmentId());
+        Optional<Payment> payment = paymentRepository
                         .findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
                                 request.getPatientId(),
                                 PaymentStatus.SUCCESS.name()
@@ -98,9 +95,7 @@ public class PaymentValidationService {
             PaymentValidationRequest request,
             HospitalConfig config) {
 
-        BigDecimal consultationFee =
-                departmentFeeService.getConsultationFee(
-                        request.getDepartmentId());
+       BigDecimal consultationFee = getConsultationFee(request.getDepartmentId());
 
         Optional<Payment> payment =
                 paymentRepository
@@ -172,6 +167,8 @@ public class PaymentValidationService {
 
         return response;
     }
-
+    private BigDecimal getConsultationFee(String departmentId) {
+        return departmentFeeService.getConsultationFee(departmentId);
+    }
     
 }
