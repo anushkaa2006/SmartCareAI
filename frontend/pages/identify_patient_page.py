@@ -48,10 +48,11 @@ FONT_BODY    = "Segoe UI"
 
 class IdentifyPatientPage(ctk.CTkFrame):
 
-    def __init__(self, parent, go_back,patient_id=None, department_id=None, department_name=None):
+    def __init__(self, parent, go_back,open_payment_page,patient_id=None, department_id=None, department_name=None):
         super().__init__(parent, fg_color=BG)
         self.go_back_command = go_back
         self.patient_id = patient_id
+        self.open_payment_page = open_payment_page
         self.department_name =department_name
         self.department_id = department_id
         self.pack(fill="both", expand=True)
@@ -312,7 +313,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
     def validate_payment(self):
 
         department_name = self.department_dropdown.get()
-
+        
         if department_name not in self.department_map:
             messagebox.showwarning(
                 "Department Required",
@@ -320,9 +321,11 @@ class IdentifyPatientPage(ctk.CTkFrame):
             )
             return
 
+        department_id = self.department_map[department_name]
+
         payload = {
             "patientId": self.current_patient_id,
-            "departmentId": self.department_map[department_name]
+            "departmentId":  department_id
         }
 
         try:
@@ -345,7 +348,31 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
             if data["action"] == "PAYMENT_REQUIRED":
 
-                print("Open Payment Page")
+                patient = {
+
+                    "patientId": self.current_patient_id,
+
+                    "name": self.info_labels["Name"].cget("text"),
+
+                    "departmentId": department_id,
+
+                    "departmentName": department_name
+
+                }
+
+                self.open_payment_page(
+
+                    patient,
+
+                    data,
+
+                    payment_success_callback=lambda payment:
+                        self.generate_visit(self.current_patient_id),
+
+                    go_back_page=lambda:
+                        self.fetch_patient_details(self.current_patient_id)
+
+                )
 
             else:
 

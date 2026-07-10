@@ -3,6 +3,7 @@ from pages.landing_page import LandingPage
 from pages.registration_page import RegistrationPage
 from pages.identify_patient_page import IdentifyPatientPage
 from pages.patient_recovery_page import PatientRecoveryPage
+from pages.payment_page import PaymentPage
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -26,7 +27,8 @@ def show_identify_patient(patient_id=None, department_id=None, department_name=N
     if current_page:
         current_page.destroy()
 
-    current_page = IdentifyPatientPage(app, go_back=show_landing,patient_id=patient_id, department_id= department_id, department_name = department_name)
+    current_page = IdentifyPatientPage(app, go_back=show_landing,open_payment_page=show_payment_page,
+        patient_id=patient_id, department_id= department_id, department_name = department_name)
 
 
 def show_patient_recovery():
@@ -44,6 +46,16 @@ def show_face_update(patient, department_id, department_name):
         current_page.destroy()
     
     current_page = RegistrationPage(app, go_back= show_landing,update_mode=True,patient=patient, department_id = department_id, department_name = department_name, skip_summary= True)
+
+def show_payment_page(patient, validation_response,payment_success_callback,go_back_page):
+
+    global current_page
+
+    if current_page:
+        current_page.destroy()
+
+    current_page = PaymentPage(app,patient=patient,validation_response=validation_response,
+        go_back=go_back_page,payment_success_callback=payment_success_callback)
 
 def show_landing():
     global current_page
