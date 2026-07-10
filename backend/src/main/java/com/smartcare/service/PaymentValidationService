@@ -1,0 +1,93 @@
+package com.smartcare.service;
+
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.smartcare.dto.PaymentValidationRequest;
+import com.smartcare.dto.PaymentValidationResponse;
+import com.smartcare.model.HospitalConfig;
+import com.smartcare.repository.PaymentRepository;
+import com.smartcare.enums.PayementStatus;
+import com.smartcare.model.Payment;
+
+@Service
+public class PaymentValidationService {
+
+    @Autowired
+    private PaymentRepository paymentRepository;
+
+    @Autowired
+    private HospitalConfigService hospitalConfigService;
+
+    @Autowired
+    private DepartmentFeeService departmentFeeService;
+
+    public PaymentValidationResponse validatePayment(
+        PaymentValidationRequest request) {
+
+        HospitalConfig config = hospitalConfigService.getConfiguration();
+
+        if(config.getPaymentFlag() == 1){
+            return validateHospitalWise(request, config);
+        }
+
+        return validateDepartmentWise(request, config);
+    }
+
+
+    private PaymentValidationResponse validateHospitalWise(
+            PaymentValidationRequest request,HospitalConfig config){
+
+        return new PaymentValidationResponse();
+    }
+
+
+    private PaymentValidationResponse validateDepartmentWise(
+            PaymentValidationRequest request,HospitalConfig config){
+
+        return new PaymentValidationResponse();
+    }
+
+
+    private PaymentValidationResponse buildResponse(
+        boolean paymentRequired, BigDecimal amount, String message,
+        Integer validityDays, String billingPolicy
+    ){
+        PaymentValidationResponse response = new PaymentValidationResponse();
+        response.setPaymentRequired(payementRequired);
+        response.setAmount(amount);
+        response.setMessage(message);
+        response.setValidityDays(validityDays);
+        response.setPaymentType(billingPolicy);
+
+        return response;
+    }
+
+    private PaymentValidationResponse validateHospitalWise(
+        PaymentValidationRequest request,HospitalConfig config
+    ) {
+        Optional<Payment> payment = paymentRepository.findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
+                                        request.getPatientId().PayementStatus.SUCCESS.name());
+        if(payment.isEmpty()){
+            BigDecimal amount = departmentFeeService.getConsultationFee(request.getDepartmentId());
+            return buildResponse(true,amount,"No previous payment found.",config.getValidityDays(),"HOSPITAL_WISE");
+        }
+        Payment latestPayment = payment.get();
+
+        if(!latestPayment.getValidTill().isBefore(LocalDate.now())){
+
+            return buildResponse(false,BigDecimal.ZERO,"Previous payment is still valid.",
+                    config.getValidityDays(),"HOSPITAL_WISE");
+        }
+
+        BigDecimal amount =departmentFeeService.getConsultationFee(
+                        request.getDepartmentId());
+
+        return buildResponse(true,amount, "Payment validity has expired.",
+                    config.getValidityDays(),"HOSPITAL_WISE");
+    }
+}
