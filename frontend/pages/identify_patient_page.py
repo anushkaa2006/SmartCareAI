@@ -312,14 +312,21 @@ class IdentifyPatientPage(ctk.CTkFrame):
     def validate_payment(self):
 
         department_name = self.department_dropdown.get()
-        department_id = self.department_map.get(department_name)
+
+        if department_name not in self.department_map:
+            messagebox.showwarning(
+                "Department Required",
+                "Please select a department."
+            )
+            return
 
         payload = {
             "patientId": self.current_patient_id,
-            "departmentId": department_id
+            "departmentId": self.department_map[department_name]
         }
 
         try:
+
             response = requests.post(
                 "http://localhost:9090/payment/validate",
                 json=payload
@@ -336,8 +343,21 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
             print(data)
 
+            if data["action"] == "PAYMENT_REQUIRED":
+
+                print("Open Payment Page")
+
+            else:
+
+                print("Generate Visit")
+
+                self.generate_visit(self.current_patient_id)
+
         except Exception as e:
-            messagebox.showerror("Error", str(e))
+            messagebox.showerror(
+                "Error",
+                str(e)
+            )
     
     def registration_success(self, patient_id, visit_id, queue_number, department):
         qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)
