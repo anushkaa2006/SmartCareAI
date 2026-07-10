@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 import com.smartcare.dto.PaymentValidationRequest;
 import com.smartcare.dto.PaymentValidationResponse;
 import com.smartcare.enums.BillingPolicy;
+import com.smartcare.enums.PaymentFlag;
 import com.smartcare.enums.PaymentStatus;
 import com.smartcare.enums.WorkflowAction;
 import com.smartcare.model.HospitalConfig;
 import com.smartcare.model.Payment;
-import com.smartcare.enums.PaymentFlag;
 import com.smartcare.repository.PaymentRepository;
 
 @Service
@@ -30,28 +30,29 @@ public class PaymentValidationService {
     private DepartmentFeeService departmentFeeService;
 
     public PaymentValidationResponse validatePayment(
-        PaymentValidationRequest request) {
+            PaymentValidationRequest request) {
 
         HospitalConfig config = hospitalConfigService.getConfiguration();
 
-       if (config.getPaymentFlag() == PaymentFlag.HOSPITAL_WISE.getValue()) {
+        if (config.getPaymentFlag() == PaymentFlag.HOSPITAL_WISE.getValue()) {
             return validateHospitalWise(request, config);
         }
 
         return validateDepartmentWise(request, config);
-    
-        }
+    }
 
     private PaymentValidationResponse validateHospitalWise(
             PaymentValidationRequest request,
             HospitalConfig config) {
 
-        BigDecimal consultationFee = getConsultationFee(request.getDepartmentId());
-        Optional<Payment> payment = paymentRepository
+        BigDecimal consultationFee =
+                getConsultationFee(request.getDepartmentId());
+
+        Optional<Payment> payment =
+                paymentRepository
                         .findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
                                 request.getPatientId(),
-                                PaymentStatus.SUCCESS.name()
-                        );
+                                PaymentStatus.SUCCESS.name());
 
         if (payment.isEmpty()) {
 
@@ -96,15 +97,15 @@ public class PaymentValidationService {
             PaymentValidationRequest request,
             HospitalConfig config) {
 
-       BigDecimal consultationFee = getConsultationFee(request.getDepartmentId());
+        BigDecimal consultationFee =
+                getConsultationFee(request.getDepartmentId());
 
         Optional<Payment> payment =
                 paymentRepository
                         .findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
                                 request.getPatientId(),
                                 request.getDepartmentId(),
-                                PaymentStatus.SUCCESS.name()
-                        );
+                                PaymentStatus.SUCCESS.name());
 
         if (payment.isEmpty()) {
 
@@ -145,7 +146,6 @@ public class PaymentValidationService {
         );
     }
 
-
     private PaymentValidationResponse buildResponse(
             boolean paymentRequired,
             BigDecimal consultationFee,
@@ -153,10 +153,10 @@ public class PaymentValidationService {
             Integer validityDays,
             BillingPolicy billingPolicy,
             LocalDate validTill,
-            WorkflowAction action
-    ) {
+            WorkflowAction action) {
 
-        PaymentValidationResponse response = new PaymentValidationResponse();
+        PaymentValidationResponse response =
+                new PaymentValidationResponse();
 
         response.setPaymentRequired(paymentRequired);
         response.setConsultationFee(consultationFee);
@@ -168,8 +168,9 @@ public class PaymentValidationService {
 
         return response;
     }
+
     private BigDecimal getConsultationFee(String departmentId) {
+
         return departmentFeeService.getConsultationFee(departmentId);
     }
-        
 }
