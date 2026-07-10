@@ -1,5 +1,6 @@
 package com.smartcare.repository;
 
+import java.time.LocalDate;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -23,5 +24,6 @@ public interface PaymentRepository
             String departmentId,
             String paymentStatus
     );
+    long countByPaymentDate(LocalDate paymentDate);
 
 }

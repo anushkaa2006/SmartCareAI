@@ -1,5 +1,6 @@
 package com.smartcare.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 
 public class PaymentResponse {
@@ -15,6 +16,8 @@ public class PaymentResponse {
     private LocalDate validTill;
 
     private String message;
+
+    private BigDecimal amount;
 
     public String getPaymentId() {
         return paymentId;
@@ -62,5 +65,11 @@ public class PaymentResponse {
 
     public void setMessage(String message) {
         this.message = message;
+    }
+    public BigDecimal getamount(){
+        return amount;
+    }
+    public void setAmount(BigDecimal amount){
+        this.amount = amount;
     }
 }
