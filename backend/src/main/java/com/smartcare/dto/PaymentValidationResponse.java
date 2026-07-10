@@ -1,18 +1,25 @@
 package com.smartcare.dto;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
+
+
 
 public class PaymentValidationResponse {
 
     private boolean paymentRequired;
 
-    private BigDecimal amount;
+    private BigDecimal consultationFee;
+
+    private String billingPolicy;
 
     private String message;
 
     private Integer validityDays;
 
-    private String paymentType;
+    private LocalDate validTill;
+
+    private String action;
 
     public boolean isPaymentRequired() {
         return paymentRequired;
@@ -22,12 +29,12 @@ public class PaymentValidationResponse {
         this.paymentRequired = paymentRequired;
     }
 
-    public BigDecimal getAmount() {
-        return amount;
+    public BigDecimal getConsultationFee() {
+        return consultationFee;
     }
 
-    public void setAmount(BigDecimal amount) {
-        this.amount = amount;
+    public void setConsultationFee(BigDecimal consultationFee) {
+        this.consultationFee = consultationFee;
     }
 
     public String getMessage() {
@@ -46,11 +53,23 @@ public class PaymentValidationResponse {
         this.validityDays = validityDays;
     }
 
-    public String getPaymentType() {
-        return paymentType;
+    public String getBillingPolicy() {
+        return billingPolicy;
     }
 
-    public void setPaymentType(String paymentType) {
-        this.paymentType = paymentType;
+    public void setBillingPolicy(String billingPolicy) {
+        this.billingPolicy = billingPolicy;
+    }
+    public LocalDate getValidTill(){
+        return validTill;
+    }
+    public void setValidTill(LocalDate validTill){
+        this.validTill = validTill;
+    }
+    public String getAction(){
+        return action;
+    }
+    public void setAction(String action){
+        this.action =action;
     }
 }

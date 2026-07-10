@@ -9,9 +9,10 @@ import org.springframework.stereotype.Service;
 
 import com.smartcare.dto.PaymentValidationRequest;
 import com.smartcare.dto.PaymentValidationResponse;
+import com.smartcare.enums.BillingPolicy;
+import com.smartcare.enums.PaymentStatus;
+import com.smartcare.enums.WorkflowAction;
 import com.smartcare.model.HospitalConfig;
-import com.smartcare.repository.PaymentRepository;
-import com.smartcare.enums.PayementStatus;
 import com.smartcare.model.Payment;
 
 @Service
@@ -40,54 +41,137 @@ public class PaymentValidationService {
 
 
     private PaymentValidationResponse validateHospitalWise(
-            PaymentValidationRequest request,HospitalConfig config){
+            PaymentValidationRequest request,
+            HospitalConfig config) {
 
-        return new PaymentValidationResponse();
+        BigDecimal consultationFee =
+                departmentFeeService.getConsultationFee(
+                        request.getDepartmentId());
+
+        Optional<Payment> payment =
+                paymentRepository
+                        .findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
+                                request.getPatientId(),
+                                PaymentStatus.SUCCESS.name()
+                        );
+
+        if (payment.isEmpty()) {
+
+            return buildResponse(
+                    true,
+                    consultationFee,
+                    "No previous payment found.",
+                    config.getValidityDays(),
+                    BillingPolicy.HOSPITAL_WISE,
+                    null,
+                    WorkflowAction.PAYMENT_REQUIRED
+            );
+        }
+
+        Payment latestPayment = payment.get();
+
+        if (!latestPayment.getValidTill().isBefore(LocalDate.now())) {
+
+            return buildResponse(
+                    false,
+                    consultationFee,
+                    "Previous payment is still valid.",
+                    config.getValidityDays(),
+                    BillingPolicy.HOSPITAL_WISE,
+                    latestPayment.getValidTill(),
+                    WorkflowAction.CONTINUE
+            );
+        }
+
+        return buildResponse(
+                true,
+                consultationFee,
+                "Payment validity has expired.",
+                config.getValidityDays(),
+                BillingPolicy.HOSPITAL_WISE,
+                latestPayment.getValidTill(),
+                WorkflowAction.PAYMENT_REQUIRED
+        );
     }
 
-
     private PaymentValidationResponse validateDepartmentWise(
-            PaymentValidationRequest request,HospitalConfig config){
+            PaymentValidationRequest request,
+            HospitalConfig config) {
 
-        return new PaymentValidationResponse();
+        BigDecimal consultationFee =
+                departmentFeeService.getConsultationFee(
+                        request.getDepartmentId());
+
+        Optional<Payment> payment =
+                paymentRepository
+                        .findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
+                                request.getPatientId(),
+                                request.getDepartmentId(),
+                                PaymentStatus.SUCCESS.name()
+                        );
+
+        if (payment.isEmpty()) {
+
+            return buildResponse(
+                    true,
+                    consultationFee,
+                    "No previous payment found for this department.",
+                    config.getValidityDays(),
+                    BillingPolicy.DEPARTMENT_WISE,
+                    null,
+                    WorkflowAction.PAYMENT_REQUIRED
+            );
+        }
+
+        Payment latestPayment = payment.get();
+
+        if (!latestPayment.getValidTill().isBefore(LocalDate.now())) {
+
+            return buildResponse(
+                    false,
+                    consultationFee,
+                    "Department payment is still valid.",
+                    config.getValidityDays(),
+                    BillingPolicy.DEPARTMENT_WISE,
+                    latestPayment.getValidTill(),
+                    WorkflowAction.CONTINUE
+            );
+        }
+
+        return buildResponse(
+                true,
+                consultationFee,
+                "Department payment validity has expired.",
+                config.getValidityDays(),
+                BillingPolicy.DEPARTMENT_WISE,
+                latestPayment.getValidTill(),
+                WorkflowAction.PAYMENT_REQUIRED
+        );
     }
 
 
     private PaymentValidationResponse buildResponse(
-        boolean paymentRequired, BigDecimal amount, String message,
-        Integer validityDays, String billingPolicy
-    ){
+            boolean paymentRequired,
+            BigDecimal consultationFee,
+            String message,
+            Integer validityDays,
+            BillingPolicy billingPolicy,
+            LocalDate validTill,
+            WorkflowAction action
+    ) {
+
         PaymentValidationResponse response = new PaymentValidationResponse();
-        response.setPaymentRequired(payementRequired);
-        response.setAmount(amount);
+
+        response.setPaymentRequired(paymentRequired);
+        response.setConsultationFee(consultationFee);
         response.setMessage(message);
         response.setValidityDays(validityDays);
-        response.setPaymentType(billingPolicy);
+        response.setBillingPolicy(billingPolicy.name());
+        response.setValidTill(validTill);
+        response.setAction(action.name());
 
         return response;
     }
 
-    private PaymentValidationResponse validateHospitalWise(
-        PaymentValidationRequest request,HospitalConfig config
-    ) {
-        Optional<Payment> payment = paymentRepository.findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
-                                        request.getPatientId().PayementStatus.SUCCESS.name());
-        if(payment.isEmpty()){
-            BigDecimal amount = departmentFeeService.getConsultationFee(request.getDepartmentId());
-            return buildResponse(true,amount,"No previous payment found.",config.getValidityDays(),"HOSPITAL_WISE");
-        }
-        Payment latestPayment = payment.get();
-
-        if(!latestPayment.getValidTill().isBefore(LocalDate.now())){
-
-            return buildResponse(false,BigDecimal.ZERO,"Previous payment is still valid.",
-                    config.getValidityDays(),"HOSPITAL_WISE");
-        }
-
-        BigDecimal amount =departmentFeeService.getConsultationFee(
-                        request.getDepartmentId());
-
-        return buildResponse(true,amount, "Payment validity has expired.",
-                    config.getValidityDays(),"HOSPITAL_WISE");
-    }
+    
 }
