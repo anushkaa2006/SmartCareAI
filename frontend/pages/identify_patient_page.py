@@ -286,19 +286,15 @@ class IdentifyPatientPage(ctk.CTkFrame):
             traceback.print_exc()
     
     def generate_visit(self, patient_id):
-
         if self.current_patient_id is None:
-            messagebox.showerror("Error","Please scan a patient first"
-            )
+            messagebox.showerror("Error", "Please scan a patient first")
             return
 
         department_name = self.department_dropdown.get()
-
         department_id = self.department_map.get(department_name)
 
         if not department_id:
-            messagebox.showerror("Error","Invalid department selected."
-            )
+            messagebox.showerror("Error", "Invalid department selected.")
             return
 
         payload = {
@@ -307,26 +303,14 @@ class IdentifyPatientPage(ctk.CTkFrame):
         }
 
         try:
-
-            response = requests.post("http://localhost:9090/visits/create",
-                json=payload
-            )
-
-            if response.status_code != 200:
-
-                messagebox.showerror("Error","Unable to create visit."
-                )
-                return
-
+            response = requests.post("http://localhost:9090/visits/create", json=payload)
             data = response.json()
             data["departmentName"] = department_name
+
             return data
-
-        except Exception:
-
-            messagebox.showerror( "Network Error","Could not connect to visit generation API."
-            )
-            return None
+           
+        except Exception as e:
+            messagebox.showerror("Network Error", "Could not connect to visit generation API.")
 
 
     def validate_payment(self):
@@ -386,7 +370,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
                     data,
 
                     payment_success_callback=lambda payment:
-                        self.generate_visit(self.current_patient_id),
+                        self.after_payment_success(payment),
 
                     go_back_page=lambda:
                         self.fetch_patient_details(self.current_patient_id)
@@ -397,7 +381,20 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
                 print("Generate Visit")
 
-                self.generate_visit(self.current_patient_id)
+                visit = self.generate_visit(self.current_patient_id)
+
+                if visit:
+
+                    self.registration_success(visit,
+                        payment={
+                            "paymentStatus": "ALREADY PAID",
+                            "paymentMode": "-",
+                            "amount": 0,
+                            "receiptNumber": "-",
+                            "transactionId": "-",
+                            "validTill": data.get("validTill", "-")
+                        }
+                    )
 
         except Exception as e:
             messagebox.showerror(
@@ -405,53 +402,226 @@ class IdentifyPatientPage(ctk.CTkFrame):
                 str(e)
             )
     
-    def registration_success(self, patient_id, visit_id, queue_number, department):
-        qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)
+    def registration_success(self, visit, payment=None):
+
+        patient_id = visit["patientId"]
+        visit_id = visit["visitId"]
+        queue_number = visit["queueNumber"]
+        department = visit["departmentName"]
+
+        qr_path = self.generate_qr_code(
+            patient_id,
+            visit_id,
+            queue_number,
+            department
+        )
 
         popup = ctk.CTkToplevel(self)
         popup.title("Visit Created")
-        popup.geometry("520x720")
+        popup.geometry("520x760")
         popup.grab_set()
         popup.configure(fg_color=BG)
 
         badge = ctk.CTkLabel(
-            popup, text="✓", width=72, height=72, corner_radius=36,
-            fg_color=PRIMARY_SOFT, text_color=PRIMARY, font=(FONT_DISPLAY, 34)
+            popup,
+            text="✓",
+            width=72,
+            height=72,
+            corner_radius=36,
+            fg_color=PRIMARY_SOFT,
+            text_color=PRIMARY,
+            font=(FONT_DISPLAY, 34)
         )
         badge.pack(pady=(36, 14))
 
-        ctk.CTkLabel(popup, text="Visit Created Successfully", font=(FONT_DISPLAY, 22), text_color=TEXT).pack()
-        ctk.CTkLabel(popup, text="Patient has been added to the queue.", font=(FONT_BODY, 13), text_color=TEXT_SOFT).pack(pady=(4, 22))
+        ctk.CTkLabel(
+            popup,
+            text="Visit Created Successfully",
+            font=(FONT_DISPLAY, 22),
+            text_color=TEXT
+        ).pack()
 
-        card = ctk.CTkFrame(popup, corner_radius=16, fg_color=SURFACE, border_width=1, border_color=BORDER)
+        ctk.CTkLabel(
+            popup,
+            text="Patient has been added to the queue.",
+            font=(FONT_BODY, 13),
+            text_color=TEXT_SOFT
+        ).pack(pady=(4, 22))
+
+        # ==========================================================
+        # PATIENT DETAILS CARD
+        # ==========================================================
+
+        card = ctk.CTkFrame(
+            popup,
+            corner_radius=16,
+            fg_color=SURFACE,
+            border_width=1,
+            border_color=BORDER
+        )
+
         card.pack(fill="x", padx=44, pady=8)
 
         qr_ctk_image = ctk.CTkImage(
-            light_image=Image.open(qr_path), dark_image=Image.open(qr_path), size=(130, 130)
+            light_image=Image.open(qr_path),
+            dark_image=Image.open(qr_path),
+            size=(130, 130)
         )
-        qr_label = ctk.CTkLabel(card, image=qr_ctk_image, text="")
+
+        qr_label = ctk.CTkLabel(
+            card,
+            image=qr_ctk_image,
+            text=""
+        )
+
         qr_label.image = qr_ctk_image
         qr_label.pack(pady=(20, 14))
 
-        details = ctk.CTkFrame(card, fg_color="transparent")
+        details = ctk.CTkFrame(
+            card,
+            fg_color="transparent"
+        )
+
         details.pack(fill="x", padx=28, pady=(0, 22))
-        for label, value in [
-            ("Patient ID",   patient_id),
-            ("Visit ID",     visit_id),
-            ("Queue number", f"Q-{queue_number}"),
-            ("Department",   department),
-        ]:
-            row = ctk.CTkFrame(details, fg_color="transparent")
+
+        patient_details = [
+
+            ("Patient ID", patient_id),
+
+            ("Visit ID", visit_id),
+
+            ("Queue Number", f"Q-{queue_number}"),
+
+            ("Department", department)
+
+        ]
+
+        for label, value in patient_details:
+
+            row = ctk.CTkFrame(
+                details,
+                fg_color="transparent"
+            )
+
             row.pack(fill="x", pady=5)
-            ctk.CTkLabel(row, text=label, font=(FONT_BODY, 12), text_color=TEXT_FAINT).pack(side="left")
-            ctk.CTkLabel(row, text=value, font=(FONT_DISPLAY, 13), text_color=TEXT).pack(side="right")
+
+            ctk.CTkLabel(
+                row,
+                text=label,
+                font=(FONT_BODY, 12),
+                text_color=TEXT_FAINT
+            ).pack(side="left")
+
+            ctk.CTkLabel(
+                row,
+                text=str(value),
+                font=(FONT_DISPLAY, 13),
+                text_color=TEXT
+            ).pack(side="right")
+
+        # ==========================================================
+        # PAYMENT DETAILS CARD
+        # ==========================================================
+
+        if payment is not None:
+
+            payment_card = ctk.CTkFrame(
+                popup,
+                corner_radius=16,
+                fg_color=SURFACE,
+                border_width=1,
+                border_color=BORDER
+            )
+
+            payment_card.pack(
+                fill="x",
+                padx=44,
+                pady=(10, 10)
+            )
+
+            ctk.CTkLabel(
+                payment_card,
+                text="💳 Payment Details",
+                font=(FONT_DISPLAY, 16),
+                text_color=TEXT
+            ).pack(anchor="w", padx=20, pady=(15, 10))
+
+            payment_details = [
+
+                ("Status", payment.get("paymentStatus", "-")),
+
+                ("Payment Mode", payment.get("paymentMode", "-")),
+
+                (
+                    "Amount Paid",
+                    f"₹ {float(payment.get('amount', 0)):.2f}"
+                ),
+
+                (
+                    "Receipt Number",
+                    payment.get("receiptNumber", "-")
+                ),
+
+                (
+                    "Reference Number",
+                    payment.get("transactionId", "-")
+                ),
+
+                (
+                    "Valid Till",
+                    payment.get("validTill", "-")
+                )
+
+            ]
+
+            for label, value in payment_details:
+
+                row = ctk.CTkFrame(
+                    payment_card,
+                    fg_color="transparent"
+                )
+
+                row.pack(fill="x", padx=20, pady=5)
+
+                ctk.CTkLabel(
+                    row,
+                    text=label,
+                    font=(FONT_BODY, 12),
+                    text_color=TEXT_FAINT
+                ).pack(side="left")
+
+                ctk.CTkLabel(
+                    row,
+                    text=str(value),
+                    font=(FONT_DISPLAY, 12),
+                    text_color=TEXT
+                ).pack(side="right")
+
+        # ==========================================================
+        # BUTTON
+        # ==========================================================
 
         ctk.CTkButton(
-            popup, text="Generate & print slip", height=46, corner_radius=12,
-            font=(FONT_DISPLAY, 14), fg_color=PRIMARY, hover_color=PRIMARY_H,
+            popup,
+            text="Generate & Print Slip",
+            height=46,
+            corner_radius=12,
+            font=(FONT_DISPLAY, 14),
+            fg_color=PRIMARY,
+            hover_color=PRIMARY_H,
             text_color=("#FFFFFF", "#1A1C1B"),
-            command=lambda: self.download_slip(patient_id, visit_id, queue_number, department, qr_path),
-        ).pack(pady=24, padx=44, fill="x")
+            command=lambda: self.download_slip(
+                patient_id,
+                visit_id,
+                queue_number,
+                department,
+                qr_path
+            )
+        ).pack(
+            pady=24,
+            padx=44,
+            fill="x"
+        )
     
     def generate_qr_code(self, patient_id, visit_id, queue_number, department):
         qr_data = (
@@ -499,3 +669,13 @@ class IdentifyPatientPage(ctk.CTkFrame):
             print(f"Error opening PDF: {e}")
 
 
+    def after_payment_success(self, payment):
+
+        visit = self.generate_visit(self.current_patient_id)
+
+        if visit:
+
+            self.registration_success(
+                visit,
+                payment
+            )

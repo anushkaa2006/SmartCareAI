@@ -32,6 +32,7 @@ public class PaymentService {
         payment.setPaymentMode(request.getPaymentMode());
         payment.setPaymentStatus(PaymentStatus.SUCCESS.name());
         payment.setPaymentDate(LocalDate.now());
+        
         HospitalConfig config = hospitalConfigService.getConfiguration();
         payment.setValidTill(LocalDate.now().plusDays(config.getValidityDays()));
 
@@ -45,10 +46,20 @@ public class PaymentService {
 
         response.setPaymentId(payment.getPaymentId());
         response.setReceiptNumber(payment.getReceiptNumber());
+
         response.setAmount(payment.getAmount());
+
+        response.setPaymentMode(payment.getPaymentMode());
+
+        // Using Payment ID as reference number for now
+        response.setTransactionId(payment.getPaymentId());
+
         response.setPaymentStatus(payment.getPaymentStatus());
+
         response.setPaymentDate(payment.getPaymentDate());
+
         response.setValidTill(payment.getValidTill());
+
         response.setMessage("Payment Successful");
 
         return response;

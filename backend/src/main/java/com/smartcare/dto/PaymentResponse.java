@@ -19,6 +19,10 @@ public class PaymentResponse {
 
     private BigDecimal amount;
 
+    private String paymentMode;
+
+    private String transactionId;
+
     public String getPaymentId() {
         return paymentId;
     }
@@ -66,10 +70,28 @@ public class PaymentResponse {
     public void setMessage(String message) {
         this.message = message;
     }
-    public BigDecimal getamount(){
+
+    public BigDecimal getAmount() {
         return amount;
     }
-    public void setAmount(BigDecimal amount){
+
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
+    }
+
+    public String getPaymentMode() {
+        return paymentMode;
+    }
+
+    public void setPaymentMode(String paymentMode) {
+        this.paymentMode = paymentMode;
+    }
+
+    public String getTransactionId() {
+        return transactionId;
+    }
+
+    public void setTransactionId(String transactionId) {
+        this.transactionId = transactionId;
     }
 }
