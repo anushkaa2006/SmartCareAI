@@ -177,8 +177,7 @@ class PaymentPage(ctk.CTkFrame):
 
             ("Department", self.patient["departmentName"]),
 
-            ("Billing Policy",
-             self.validation["billingPolicy"].replace("_"," "))
+            ("Billing Policy",self.validation["billingPolicy"].replace("_"," ").title())
 
         ]
 
@@ -227,13 +226,19 @@ class PaymentPage(ctk.CTkFrame):
             text_color=TEXT
         ).pack(anchor="w", padx=24, pady=(20,20))
 
-        for mode in ["CASH","UPI","CARD"]:
+        payment_modes = {
+            "CASH": "💵 Cash",
+            "UPI": "📱 UPI",
+            "CARD": "💳 Card"
+        }
+
+        for key, value in payment_modes.items():
 
             rb = ctk.CTkRadioButton(
                 card,
-                text=mode,
+                text=value,
                 variable=self.payment_mode,
-                value=mode,
+                value=key,
                 font=(FONT_BODY,15),
                 text_color=TEXT,
                 fg_color=PRIMARY
@@ -290,15 +295,15 @@ class PaymentPage(ctk.CTkFrame):
             text_color=TEXT
         ).pack(anchor="w", padx=20, pady=(20,15))
 
-        amount = self.validation["consultationFee"]
+        amount = float(self.validation["consultationFee"])
 
         rows = [
 
-            ("Consultation Fee",f"₹ {amount}"),
+            ("Consultation Fee",f"₹ {amount:.2f}"),
 
             ("Discount","₹ 0"),
 
-            ("Total",f"₹ {amount}")
+            ("Total",f"₹ {amount:.2f}")
 
         ]
 
@@ -333,7 +338,7 @@ class PaymentPage(ctk.CTkFrame):
 
         btn_frame.pack(fill="x", pady=10)
 
-        cancel_btn = ctk.CTkButton(
+        self.cancel_btn = ctk.CTkButton(
             btn_frame,
             text="Cancel",
             fg_color=DANGER,
@@ -341,7 +346,7 @@ class PaymentPage(ctk.CTkFrame):
             width=130,
             command=self.go_back
         )
-        cancel_btn.pack(side="left", padx=5)
+        self.cancel_btn.pack(side="left", padx=5)
 
         self.confirm_btn= ctk.CTkButton(
             btn_frame,
@@ -370,16 +375,14 @@ class PaymentPage(ctk.CTkFrame):
 
         try:
 
-            self.confirm_btn.configure(
-                state="disabled",
-                text="Processing..."
-            )
+            self.confirm_btn.configure(state="disabled",text="Processing...")
 
-            response = requests.post(
-                "http://localhost:9090/payment/save",
-                json=payload,
-                timeout=10
-            )
+            self.cancel_btn.configure(state="disabled")
+            self.configure(cursor="watch")
+
+            response = requests.post("http://localhost:9090/payment/save",
+                json=payload,timeout=10)
+
 
             if response.status_code != 200:
 
@@ -387,6 +390,7 @@ class PaymentPage(ctk.CTkFrame):
                     state="normal",
                     text="Confirm Payment"
                 )
+                self.configure(cursor="")          
 
                 messagebox.showerror(
                     "Payment Failed",
@@ -405,6 +409,9 @@ class PaymentPage(ctk.CTkFrame):
                 state="normal",
                 text="Confirm Payment"
             )
+
+            self.cancel_btn.configure(state="normal")
+            self.configure(cursor="")
 
             messagebox.showerror(
                 "Network Error",
@@ -509,5 +516,10 @@ class PaymentPage(ctk.CTkFrame):
     def finish_payment(self,popup,payment):
 
         popup.destroy()
-
+        self.confirm_btn.configure(
+            state="normal",
+            text="Confirm Payment"
+        )
+        self.cancel_btn.configure(state="normal")
+        self.configure(cursor="") 
         self.payment_success_callback(payment)

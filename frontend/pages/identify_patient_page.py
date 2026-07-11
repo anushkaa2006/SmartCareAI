@@ -286,15 +286,19 @@ class IdentifyPatientPage(ctk.CTkFrame):
             traceback.print_exc()
     
     def generate_visit(self, patient_id):
+
         if self.current_patient_id is None:
-            messagebox.showerror("Error", "Please scan a patient first")
+            messagebox.showerror("Error","Please scan a patient first"
+            )
             return
 
         department_name = self.department_dropdown.get()
+
         department_id = self.department_map.get(department_name)
 
         if not department_id:
-            messagebox.showerror("Error", "Invalid department selected.")
+            messagebox.showerror("Error","Invalid department selected."
+            )
             return
 
         payload = {
@@ -303,11 +307,26 @@ class IdentifyPatientPage(ctk.CTkFrame):
         }
 
         try:
-            response = requests.post("http://localhost:9090/visits/create", json=payload)
+
+            response = requests.post("http://localhost:9090/visits/create",
+                json=payload
+            )
+
+            if response.status_code != 200:
+
+                messagebox.showerror("Error","Unable to create visit."
+                )
+                return
+
             data = response.json()
-            self.registration_success(data["patientId"], data["visitId"], data["queueNumber"], department_name)
-        except Exception as e:
-            messagebox.showerror("Network Error", "Could not connect to visit generation API.")
+            data["departmentName"] = department_name
+            return data
+
+        except Exception:
+
+            messagebox.showerror( "Network Error","Could not connect to visit generation API."
+            )
+            return None
 
 
     def validate_payment(self):
