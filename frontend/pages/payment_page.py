@@ -83,7 +83,7 @@ class PaymentPage(ctk.CTkFrame):
                 fg_color="transparent",
                 hover_color=SURFACE_ALT,
                 text_color=SURFACE,
-                command=self.go_back
+                command=self.back
             ).pack(pady=8)
 
             brand = ctk.CTkFrame(header, fg_color="transparent")
@@ -344,7 +344,7 @@ class PaymentPage(ctk.CTkFrame):
             fg_color=DANGER,
             hover_color="#d62828",
             width=130,
-            command=self.go_back
+            command=self.back
         )
         self.cancel_btn.pack(side="left", padx=5)
 
@@ -357,6 +357,12 @@ class PaymentPage(ctk.CTkFrame):
             command=self.confirm_payment
         )
         self.confirm_btn.pack(side="right", padx=5)
+
+    def back(self):
+
+        self.destroy()
+
+        self.go_back()
 
 
     def confirm_payment(self):
@@ -513,13 +519,20 @@ class PaymentPage(ctk.CTkFrame):
         ).pack(pady=30,padx=35,fill="x")
 
 
-    def finish_payment(self,popup,payment):
+    def finish_payment(self, popup, payment):
 
         popup.destroy()
+
         self.confirm_btn.configure(
             state="normal",
             text="Confirm Payment"
         )
+
         self.cancel_btn.configure(state="normal")
-        self.configure(cursor="") 
+
+        self.configure(cursor="")
+
+        self.destroy()
+
         self.payment_success_callback(payment)
+        

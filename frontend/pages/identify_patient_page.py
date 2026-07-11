@@ -363,26 +363,17 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
                 }
 
-                self.open_payment_page(
-
-                    patient,
-
-                    data,
-
+                self.open_payment_page(patient=patient,validation_response=data,
                     payment_success_callback=lambda payment:
                         self.after_payment_success(payment),
 
-                    go_back_page=lambda:
-                        self.fetch_patient_details(self.current_patient_id)
-
+                    patient_id=self.current_patient_id
                 )
 
             else:
 
                 print("Generate Visit")
-
                 visit = self.generate_visit(self.current_patient_id)
-
                 if visit:
 
                     self.registration_success(visit,

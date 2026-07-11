@@ -12,6 +12,7 @@ import subprocess
 import sys
 import shutil
 import face_recognition
+from pages.payment_page import PaymentPage
 
 # =====================================================================
 # DESIGN TOKENS  (Light, Dark) - Midnight Ocean & Electric Teal
@@ -154,6 +155,26 @@ class RegistrationPage(ctk.CTkFrame):
 
     def toggle_theme(self):
         ctk.set_appearance_mode("dark" if self.theme_switch.get() == 1 else "light")
+
+
+    
+    def open_payment_page(
+            self,
+            patient,
+            validation_response,
+            payment_success_callback,
+            go_back_page
+    ):
+
+        self.destroy()
+
+        PaymentPage(
+            self.master,
+            patient=patient,
+            validation_response=validation_response,
+            go_back=go_back_page,
+            payment_success_callback=payment_success_callback
+        )
 
     # ---------- PAGE 1 ----------
     def _build_page1(self):
@@ -652,7 +673,7 @@ class RegistrationPage(ctk.CTkFrame):
                 messagebox.showerror("Error", response.text)
                 return
             
-            self.generate_existing_visit()
+            self.validate_payment_existing()
 
         except Exception as e:
             messagebox.showerror("Error",str(e))
@@ -660,20 +681,122 @@ class RegistrationPage(ctk.CTkFrame):
 
 
     def generate_existing_visit(self):
-        print("Department Name:", self.department_name)
-        print("Department ID:", self.department_id)
 
-        payload={
+        payload = {
             "patientId": self.patient["patientId"],
-            "department":self.department_name
+            "departmentId": self.department_id
         }
-        response = requests.post("http://localhost:9090/patients/visit/existing", json = payload)
-        if response.status_code != 200:
-            messagebox.showerror("Error",response.text)
-            return
-        
-        data = response.json()
-        self.generate_slip_existing(data)
+
+        try:
+
+            response = requests.post(
+                "http://localhost:9090/visits/create",
+                json=payload
+            )
+
+            if response.status_code != 200:
+                messagebox.showerror(
+                    "Error",
+                    "Unable to create visit."
+                )
+                return None
+
+            data = response.json()
+
+            data["departmentName"] = self.department_name
+
+            return data
+
+        except Exception as e:
+
+            messagebox.showerror(
+                "Network Error",
+                str(e)
+            )
+
+            return None
+
+
+    
+    def validate_payment_existing(self):
+
+        payload = {
+            "patientId": self.patient["patientId"],
+            "departmentId": self.department_id
+        }
+
+        try:
+            
+            print(payload)
+            
+            response = requests.post(
+                "http://localhost:9090/payment/validate",
+                json=payload
+            )
+
+            print("Status Code:", response.status_code)
+            print("Response:", response.text)
+
+            if response.status_code != 200:
+                messagebox.showerror(
+                    "Error",
+                    "Unable to validate payment."
+                )
+                return
+
+            data = response.json()
+
+            if data["action"] == "PAYMENT_REQUIRED":
+
+                patient = {
+                    "patientId": self.patient["patientId"],
+                    "name": self.patient["name"],
+                    "departmentId": self.department_id,
+                    "departmentName": self.department_name
+                }
+
+                self.open_payment_page(
+                    patient,
+                    data,
+                    payment_success_callback=lambda payment: self.after_payment_success_existing(payment),
+                    go_back_page=lambda: self.show_page2()
+                )
+
+            else:
+
+                visit = self.generate_existing_visit()
+
+                if visit:
+                    self.registration_success(visit,
+                        payment={
+                            "paymentStatus": "ALREADY PAID",
+                            "paymentMode": "Previous Payment",
+                            "amount": 0,
+                            "receiptNumber": "-",
+                            "transactionId": "-",
+                            "validTill": data.get("validTill", "-")
+                        }
+                    )
+
+        except Exception as e:
+
+            messagebox.showerror(
+                "Error",
+                str(e)
+            )
+
+
+    
+    def after_payment_success_existing(self, payment):
+
+        visit = self.generate_existing_visit()
+        if visit:
+            self.registration_success(
+                visit,
+                payment
+            )
+
+
 
     def generate_slip_existing(self,data):
         patient_id = data["patientId"]
