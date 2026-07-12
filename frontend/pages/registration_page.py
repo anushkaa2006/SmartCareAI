@@ -40,9 +40,10 @@ FONT_BODY    = "Segoe UI"
 
 
 class RegistrationPage(ctk.CTkFrame):
-    def __init__(self, parent, go_back,update_mode = False, patient = None, department_id = None, department_name = None, skip_summary =False):
+    def __init__(self, parent, go_back,open_payment_page,update_mode = False, patient = None, department_id = None, department_name = None, skip_summary =False):
         super().__init__(parent, fg_color=BG)
         self.go_back = go_back
+        self.open_payment_page = open_payment_page
         self.update_mode = update_mode
         self.patient = patient
         self.department_id = department_id
@@ -507,17 +508,38 @@ class RegistrationPage(ctk.CTkFrame):
 
 
     def load_departments(self):
-        default_deps = ["General Medicine", "Orthopedics", "Pediatrics", "Cardiology", "Neurology", "Oncology"]
-        departments = ["Select Department"] + default_deps
+
         try:
-            res = requests.get("http://localhost:9090/departments", timeout=2)
-            if res.status_code == 200:
-                api_deps = [item.get("departmentName") for item in res.json()]
-                if len(api_deps) > 0:
-                    departments = ["Select Department"] + api_deps
+            response = requests.get("http://localhost:9090/departments",
+                timeout=5
+            )
+
+            if response.status_code != 200:
+                return ["Select Department"]
+
+            departments = response.json()
+            department_names = ["Select Department"]
+            self.department_map = {}
+
+            for dept in departments:
+
+                status = dept.get("departmentStatus", "")
+
+                if status.upper() == "ACTIVE":
+
+                    department_name = dept.get("departmentName", "")
+                    department_id = dept.get("departmentId", "")
+
+                    department_names.append(department_name)
+
+                    self.department_map[department_name] = department_id
+
+            return department_names
+
         except Exception as e:
-            pass
-        return departments
+            import traceback
+            traceback.print_exc()
+            return ["Select Department"]
 
     def open_camera(self):
         if self.cap is not None:
@@ -583,20 +605,19 @@ class RegistrationPage(ctk.CTkFrame):
             }
 
             try:
-                response = requests.post("http://localhost:9090/patients/register", json=payload, timeout=3)
+                response = requests.post("http://localhost:9090/patients/register/basic", json=payload, timeout=3)
 
                 if response.status_code == 200:
                     data = response.json()
 
                     patient_id = data["patientId"]
-                    visit_id = data["visitId"]
-                    queue_number = data["queueNumber"]
-                    department = data["department"]
 
                     self.new_patient = {
                         "patientId": patient_id,
-                        "departmentId": data["departmentId"],
-                        "departmentName": department
+                        "name": self.full_name.get().strip(),
+                        "phone": self.phone.get().strip(),
+                        "departmentId": self.department_map[self.department.get()],
+                        "departmentName": self.department.get()
                     }
                    
                     source = "captured_faces/patient_face.jpg"
@@ -621,12 +642,8 @@ class RegistrationPage(ctk.CTkFrame):
                     }
 
                     requests.post("http://localhost:9090/patients/face/save", json=face_payload, timeout=3)
-                    self.new_patient = {
-                        "patientId": patient_id,
-                        "departmentName": self.department.get()
-                    }
 
-                    self.validate_payment_new_patient()
+                    self.validate_payment_new()
 
                 else:
                     messagebox.showerror("Server Error", f"Failed with status code: {response.status_code}")
@@ -646,6 +663,84 @@ class RegistrationPage(ctk.CTkFrame):
             self.generate_btn.configure(text="Complete Registration & Generate Slip  →", state="normal")
 
     
+    def validate_payment_new(self):
+
+        payload = {
+            "patientId": self.new_patient["patientId"],
+            "departmentId": self.new_patient["departmentId"]
+        }
+
+        try:
+            response = requests.post(
+                "http://localhost:9090/payment/validate",
+                json=payload
+            )
+
+            if response.status_code != 200:
+                messagebox.showerror(
+                    "Error",
+                    "Unable to validate payment."
+                )
+                return
+
+            data = response.json()
+
+            if data["action"] == "PAYMENT_REQUIRED":
+
+                self.open_payment_page(
+                    patient=self.new_patient,
+                    validation_response=data,
+                    payment_success_callback=self.generate_visit_new,
+                    go_back_page=self.go_back
+                )
+
+            elif data["action"] == "ALLOW_VISIT":
+
+                self.generate_visit_new()
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+
+    def generate_visit_new(self, payment=None):
+
+        payload = {
+            "patientId": self.new_patient["patientId"],
+            "departmentId": self.new_patient["departmentId"]
+        }
+
+        try:
+            response = requests.post(
+                "http://localhost:9090/visits/create",
+                json=payload,
+                timeout=5
+            )
+
+            print("Visit Status:", response.status_code)
+            print("Visit Response:", response.text)
+
+            if response.status_code != 200:
+                messagebox.showerror(
+                    "Error",
+                    "Unable to generate visit."
+                )
+                return
+
+            data = response.json()
+
+            self.registration_success(
+                patient_id=self.new_patient["patientId"],
+                visit_id=data["visitId"],
+                queue_number=data["queueNumber"],
+                department=self.new_patient["departmentName"]
+            )
+
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+       
+    
+
     def submit_patient(self):
 
         if self.update_mode:

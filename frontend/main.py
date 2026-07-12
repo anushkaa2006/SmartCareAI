@@ -19,7 +19,7 @@ def show_registration():
     global current_page
     if current_page:
         current_page.destroy()
-    current_page = RegistrationPage(app, go_back=show_landing)
+    current_page = RegistrationPage(app, go_back=show_landing,open_payment_page=show_payment_page)
 
 def show_identify_patient(patient_id=None, department_id=None, department_name=None):
     global current_page
@@ -47,28 +47,28 @@ def show_face_update(patient, department_id, department_name):
 
     print("Main.py Department ID:", department_id)
     print("Main.py Department Name:", department_name)
-    
-    current_page = RegistrationPage(app, go_back= show_landing,update_mode=True,patient=patient, department_id = department_id, department_name = department_name, skip_summary= True)
+
+    current_page = RegistrationPage(app, go_back= show_landing,open_payment_page=show_payment_page,update_mode=True,patient=patient, department_id = department_id, department_name = department_name, skip_summary= True)
 
 def show_payment_page(
-            patient,
-            validation_response,
-            payment_success_callback,
-            patient_id
-    ):
+        patient,
+        validation_response,
+        payment_success_callback,
+        go_back_page
+):
 
-        global current_page
+    global current_page
 
-        if current_page:
-            current_page.destroy()
+    if current_page:
+        current_page.destroy()
 
-        current_page = PaymentPage(
-            app,
-            patient=patient,
-            validation_response=validation_response,
-            go_back=lambda: show_identify_patient(patient_id=patient_id),
-            payment_success_callback=payment_success_callback
-        )
+    current_page = PaymentPage(
+        app,
+        patient=patient,
+        validation_response=validation_response,
+        go_back=go_back_page,
+        payment_success_callback=payment_success_callback
+    )
 
 def show_landing():
     global current_page
