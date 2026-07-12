@@ -533,7 +533,13 @@ class PaymentPage(ctk.CTkFrame):
 
         self.configure(cursor="")
 
-        self.destroy()
+        visit = self.payment_success_callback(payment)
 
-        self.payment_success_callback(payment)
+        popup.destroy()
+
+        self.final_receipt_popup(payment, visit)
+
+    
+    def final_receipt_popup(self, payment, visit):
+        pass
         

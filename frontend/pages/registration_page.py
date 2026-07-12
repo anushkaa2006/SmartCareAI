@@ -738,13 +738,7 @@ class RegistrationPage(ctk.CTkFrame):
 
             visit = response.json()
 
-            self.registration_success(
-                patient_id=self.new_patient["patientId"],
-                visit_id=visit["visitId"],
-                queue_number=visit["queueNumber"],
-                department=self.new_patient["departmentName"],
-                payment=payment
-            )
+            return visit
 
         except Exception as e:
             messagebox.showerror("Error", str(e))
