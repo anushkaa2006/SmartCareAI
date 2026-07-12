@@ -50,11 +50,8 @@ def show_face_update(patient, department_id, department_name):
 
     current_page = RegistrationPage(app, go_back= show_landing,open_payment_page=show_payment_page,update_mode=True,patient=patient, department_id = department_id, department_name = department_name, skip_summary= True)
 
-def show_payment_page(
-        patient,
-        validation_response,
-        payment_success_callback,
-        go_back_page
+def show_payment_page(patient,validation_response, payment_success_callback,
+        go_back_page, visit = None,payment=None,already_paid=False
 ):
 
     global current_page
@@ -63,11 +60,8 @@ def show_payment_page(
         current_page.destroy()
 
     current_page = PaymentPage(
-        app,
-        patient=patient,
-        validation_response=validation_response,
-        go_back=go_back_page,
-        payment_success_callback=payment_success_callback
+        app, patient=patient,validation_response=validation_response, go_back=go_back_page,
+        payment_success_callback=payment_success_callback,visit=visit,payment=payment,already_paid=already_paid
     )
 
 def show_landing():

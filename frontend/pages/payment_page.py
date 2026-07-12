@@ -42,13 +42,8 @@ FONT_BODY = "Segoe UI"
 
 class PaymentPage(ctk.CTkFrame):
 
-    def __init__(
-            self,
-            parent,
-            patient,
-            validation_response,
-            go_back,
-            payment_success_callback
+    def __init__( self,parent, patient,validation_response,go_back,
+            payment_success_callback, visit = None,payment=None,already_paid = False
     ):
 
         super().__init__(parent, fg_color=BG)
@@ -57,6 +52,9 @@ class PaymentPage(ctk.CTkFrame):
         self.validation = validation_response
         self.go_back = go_back
         self.payment_success_callback = payment_success_callback
+        self.visit = visit
+        self.payment = payment
+        self.already_paid = already_paid
 
         self.payment_mode = ctk.StringVar(value="CASH")
 
@@ -363,7 +361,10 @@ class PaymentPage(ctk.CTkFrame):
 
         self.confirm_btn= ctk.CTkButton(
             btn_frame,
-            text="Confirm Payment",
+            text=("Continue"
+                if self.validation["billingPolicy"] == "ALREADY_PAID"
+                else "Confirm Payment"
+            ),
             fg_color=PRIMARY,
             hover_color=PRIMARY_H,
             width=170,
@@ -379,6 +380,28 @@ class PaymentPage(ctk.CTkFrame):
 
 
     def confirm_payment(self):
+
+        if self.validation["billingPolicy"] == "ALREADY_PAID":
+
+            payment = {
+
+                "paymentId":"-",
+
+                "receiptNumber":"-",
+
+                "paymentStatus":"ALREADY PAID",
+
+                "amount":0,
+
+                "validTill":"-"
+
+            }
+
+            visit = self.payment_success_callback(payment)
+
+            self.final_receipt_popup(payment, visit)
+
+            return
 
         payload = {
 
@@ -580,9 +603,15 @@ class PaymentPage(ctk.CTkFrame):
 
         badge.pack(pady=(25,10))
 
+
+        title = (
+            "Visit Generated Successfully"
+            if payment["paymentStatus"] == "ALREADY PAID"
+            else "Registration Completed Successfully"
+        )
         ctk.CTkLabel(
             popup,
-            text="Registration Completed Successfully",
+            text=title,
             font=(FONT_DISPLAY,22),
             text_color=TEXT
         ).pack()

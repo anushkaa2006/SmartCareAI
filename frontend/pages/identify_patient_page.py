@@ -372,21 +372,37 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
             else:
 
-                print("Generate Visit")
                 visit = self.generate_visit(self.current_patient_id)
-                if visit:
 
-                    self.registration_success(visit,
-                        payment={
-                            "paymentStatus": "ALREADY PAID",
-                            "paymentMode": "-",
-                            "amount": 0,
-                            "receiptNumber": "-",
-                            "transactionId": "-",
-                            "validTill": data.get("validTill", "-")
-                        }
-                    )
+                if not visit:
+                    return
 
+                patient = {
+                    "paymentId": "-",
+                    "receiptNumber": "-",
+                    "paymentStatus": "ALREADY PAID",
+                    "amount": 0,
+                    "validTill": data.get("validTill", "-")
+                }
+                self.after_payment_success_existing(visit, payment)
+
+                payment = {
+                    "paymentId": "-",
+                    "receiptNumber": "-",
+                    "paymentStatus": "ALREADY PAID",
+                    "amount": 0,
+                    "validTill": data.get("validTill", "-")
+                }
+
+                self.open_payment_page(
+                    patient=patient,
+                    validation_response=data,
+                    payment_success_callback=None,
+                    patient_id=self.current_patient_id,
+                    visit=visit,
+                    payment=payment,
+                    already_paid=True
+                )
         except Exception as e:
             messagebox.showerror(
                 "Error",
@@ -664,9 +680,26 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
         visit = self.generate_visit(self.current_patient_id)
 
-        if visit:
+        return visit
+    
 
-            self.registration_success(
-                visit,
-                payment
-            )
+
+    def after_payment_success_existing(self, visit, payment):
+
+        from payment_page import PaymentPage
+
+        payment_page = PaymentPage(
+            self.master,
+            patient={
+                "patientId": self.current_patient_id,
+                "name": self.info_labels["Name"].cget("text"),
+                "departmentName": visit["departmentName"],
+            },
+            validation_response={},
+            go_back=self.go_back_command,
+            payment_success_callback=lambda x: visit
+        )
+
+        payment_page.final_receipt_popup(payment, visit)
+
+        self.destroy()
