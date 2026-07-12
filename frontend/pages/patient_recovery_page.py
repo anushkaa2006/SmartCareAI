@@ -202,10 +202,18 @@ class PatientRecoveryPage(ctk.CTkFrame):
     
 
     def continue_to_face_update(self):
+
         department_name = self.department_dropdown.get()
         department_id = self.department_map.get(department_name)
+
+        print("Department Name:", department_name)
+        print("Department ID:", department_id)
+        print("Department Map:", self.department_map)
+
         self.open_face_update(
-            self.verified_patient,department_id,department_name
+            self.verified_patient,
+            department_id,
+            department_name
         )
 
 

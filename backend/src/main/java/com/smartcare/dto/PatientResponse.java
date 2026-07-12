@@ -7,6 +7,7 @@ public class PatientResponse {
     private String visitId;
     private Integer queueNumber;
     private String department;
+    private String departmentId;
 
     public PatientResponse() {
     }
@@ -59,5 +60,11 @@ public class PatientResponse {
     }
     public void setDepartment(String department){
         this.department = department;
+    }
+    public String getDepartmentId(){
+        return departmentId;
+    }
+    public void setDepartmentId(String departmentId){
+        this.departmentId= departmentId;
     }
 }

@@ -47,6 +47,10 @@ class RegistrationPage(ctk.CTkFrame):
         self.patient = patient
         self.department_id = department_id
         self.department_name = department_name
+
+        print("RegistrationPage Department ID:", self.department_id)
+        print("RegistrationPage Department Name:", self.department_name)
+
         self.skip_summary = skip_summary
         self.pack(fill="both", expand=True)
 
@@ -583,10 +587,17 @@ class RegistrationPage(ctk.CTkFrame):
 
                 if response.status_code == 200:
                     data = response.json()
+
                     patient_id = data["patientId"]
                     visit_id = data["visitId"]
                     queue_number = data["queueNumber"]
                     department = data["department"]
+
+                    self.new_patient = {
+                        "patientId": patient_id,
+                        "departmentId": data["departmentId"],
+                        "departmentName": department
+                    }
                    
                     source = "captured_faces/patient_face.jpg"
                     destination = f"captured_faces/{patient_id}.jpg"
@@ -610,7 +621,7 @@ class RegistrationPage(ctk.CTkFrame):
                     }
 
                     requests.post("http://localhost:9090/patients/face/save", json=face_payload, timeout=3)
-                    self.registration_success(patient_id, visit_id, queue_number, department)
+                    self.validate_payment_new_patient()
 
                 else:
                     messagebox.showerror("Server Error", f"Failed with status code: {response.status_code}")
@@ -728,7 +739,7 @@ class RegistrationPage(ctk.CTkFrame):
         try:
             
             print(payload)
-            
+
             response = requests.post(
                 "http://localhost:9090/payment/validate",
                 json=payload

@@ -44,6 +44,9 @@ def show_face_update(patient, department_id, department_name):
     global current_page
     if current_page:
         current_page.destroy()
+
+    print("Main.py Department ID:", department_id)
+    print("Main.py Department Name:", department_name)
     
     current_page = RegistrationPage(app, go_back= show_landing,update_mode=True,patient=patient, department_id = department_id, department_name = department_name, skip_summary= True)
 
