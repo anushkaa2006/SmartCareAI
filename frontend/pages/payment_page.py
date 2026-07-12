@@ -565,12 +565,7 @@ class PaymentPage(ctk.CTkFrame):
 
         popup.configure(fg_color=BG)
 
-        qr_path = self.generate_qr_code(
-            self.patient["patientId"],
-            visit["visitId"],
-            visit["queueNumber"],
-            self.patient["departmentName"]
-        )
+        qr_path = self.generate_qr_code(payment, visit)
 
         badge = ctk.CTkLabel(
             popup,
@@ -695,7 +690,7 @@ class PaymentPage(ctk.CTkFrame):
 
                 self.patient["departmentName"],
 
-                payment
+                payment, visit
 
             )
 
@@ -722,35 +717,48 @@ class PaymentPage(ctk.CTkFrame):
         ).pack(fill="x")
 
 
-    def generate_qr_code(self, patient_id, visit_id, queue_number, department):
-        qr_data = (
-            f"Patient ID: {patient_id}\n"
-            f"Visit ID: {visit_id}\n"
-            f"Department: {department}\n"
-            f"Queue Number: {queue_number}"
-        )
+    def generate_qr_code(self, payment, visit):
 
-        qr = qrcode.QRCode(version=1, box_size=10, border=5)
-        qr.add_data(qr_data)
-        qr.make(fit=True)
+            qr_data = f"""
+        SMARTCARE ID
 
-        img = qr.make_image(fill_color="black", back_color="white")
+        Patient ID : {visit['patientId']}
+        Patient Name : {self.patient['name']}
+        Visit ID : {visit['visitId']}
+        Department : {self.patient['departmentName']}
+        Queue Number : Q-{visit['queueNumber']}
 
-        qr_filename = f"{patient_id}_qr.png"
+        Payment ID : {payment['paymentId']}
+        Receipt No : {payment['receiptNumber']}
+        Amount : ₹ {payment['amount']}
+        Status : {payment['paymentStatus']}
+        Valid Till : {payment['validTill']}
+        """
 
-        img.save(qr_filename)
+            qr = qrcode.QRCode(
+                version=1,
+                error_correction=qrcode.constants.ERROR_CORRECT_M,
+                box_size=10,
+                border=5
+            )
 
-        return qr_filename
+            qr.add_data(qr_data)
+            qr.make(fit=True)
 
+            img = qr.make_image(
+                fill_color="black",
+                back_color="white"
+            )
 
-    def generate_pdf_slip(self,patient_id,visit_id,queue_number,department,payment):
+            filename = f"{visit['patientId']}_qr.png"
 
-        qr_path = self.generate_qr_code(
-            patient_id,
-            visit_id,
-            queue_number,
-            department
-        )
+            img.save(filename)
+
+            return filename
+
+    def generate_pdf_slip(self,patient_id,visit_id,queue_number,department,payment,visit):
+
+        qr_path = self.generate_qr_code(payment, visit)
 
         pdf_file = f"{patient_id}_Slip.pdf"
 
