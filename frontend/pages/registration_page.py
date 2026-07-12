@@ -621,6 +621,11 @@ class RegistrationPage(ctk.CTkFrame):
                     }
 
                     requests.post("http://localhost:9090/patients/face/save", json=face_payload, timeout=3)
+                    self.new_patient = {
+                        "patientId": patient_id,
+                        "departmentName": self.department.get()
+                    }
+
                     self.validate_payment_new_patient()
 
                 else:

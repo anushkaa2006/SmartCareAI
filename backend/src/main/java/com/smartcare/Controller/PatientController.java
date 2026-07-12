@@ -38,6 +38,13 @@ public class PatientController {
     public PatientResponse registerPatient(@RequestBody PatientRequest request) {
         return patientService.registerPatient(request);
     }
+
+
+    @PostMapping("/register/basic")
+        public PatientResponse registerBasicPatient(@RequestBody PatientRequest request) {
+        return patientService.registerBasicPatient(request);
+        }
+
     @PostMapping("/face/save")
         public String saveFace(@RequestBody FaceDataRequest request) {
         return faceService.saveFace(request);

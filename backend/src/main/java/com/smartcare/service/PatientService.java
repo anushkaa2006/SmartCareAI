@@ -33,33 +33,42 @@ public class PatientService {
     @Autowired
     private DepartmentRepository departmentRepository;
 
-    public PatientResponse registerPatient(PatientRequest request) {
-       Patient patient = new Patient();
-       patient.setPatientId(generatePatientId());
-       patient.setName(request.getName());
-       patient.setFatherSpouseName(request.getFatherSpouseName());
-       patient.setAge(request.getAge());
-       patient.setGender(request.getGender());
-       patient.setCategory(request.getCategory());
-       patient.setDob(request.getDob());
-       patient.setPhone(request.getPhone());
-       patient.setAddress(request.getAddress());
-       patient.setState(request.getState());
-       patient.setDistrict(request.getDistrict());
-       patient.setPincode(request.getPincode());
-            
+
+
+    private Patient savePatient(PatientRequest request) {
+
+        Patient patient = new Patient();
+
+        patient.setPatientId(generatePatientId());
+        patient.setName(request.getName());
+        patient.setFatherSpouseName(request.getFatherSpouseName());
+        patient.setAge(request.getAge());
+        patient.setGender(request.getGender());
+        patient.setCategory(request.getCategory());
+        patient.setDob(request.getDob());
+        patient.setPhone(request.getPhone());
+        patient.setAddress(request.getAddress());
+        patient.setState(request.getState());
+        patient.setDistrict(request.getDistrict());
+        patient.setPincode(request.getPincode());
+
         patient.setRegistrationDate(
                 LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"))
-            );
-            
-            patientRepository.save(patient);
+        );
+
+        patientRepository.save(patient);
+
+        return patient;
+    }
+
+    public PatientResponse registerPatient(PatientRequest request) {
+       Patient patient = savePatient(request);
 
         Visit visit = new Visit();
 
         LocalDate today = LocalDate.now();
 
-        Long lastSequence =
-                    visitRepository.findMaxSequenceForDate(today);
+        Long lastSequence = visitRepository.findMaxSequenceForDate(today);
 
         long nextSequence =(lastSequence == null)? 1 : lastSequence + 1;
 
@@ -98,8 +107,24 @@ public class PatientService {
             System.out.println("VISIT SAVED : " + visit.getVisitId());
 
             return new PatientResponse( patient.getPatientId(), visit.getVisitId(), "Registration successful",queue.getQueueNumber(), request.getDepartment());
-               
-        }
+      
+    }
+
+    public PatientResponse registerBasicPatient(PatientRequest request) {
+
+        Patient patient = savePatient(request);
+
+        PatientResponse response = new PatientResponse();
+
+        response.setPatientId(patient.getPatientId());
+        response.setMessage("Patient registered successfully");
+
+        return response;
+    }
+
+
+
+
     private String generatePatientId() {
 
         LocalDate today =LocalDate.now();
