@@ -431,7 +431,8 @@ class PaymentPage(ctk.CTkFrame):
 
         popup.title("Payment Successful")
 
-        popup.geometry("500x420")
+        popup.geometry("520x580")
+        popup.resizable(False, False)
 
         popup.grab_set()
 

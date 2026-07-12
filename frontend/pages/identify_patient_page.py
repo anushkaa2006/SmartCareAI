@@ -409,7 +409,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
         popup = ctk.CTkToplevel(self)
         popup.title("Visit Created")
-        popup.geometry("520x760")
+        popup.geometry("620x860")
         popup.grab_set()
         popup.configure(fg_color=BG)
 
