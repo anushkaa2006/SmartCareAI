@@ -1,6 +1,19 @@
 import customtkinter as ctk
 from tkinter import messagebox
 import requests
+import qrcode
+import os
+
+from PIL import Image
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Image as PDFImage
+)
+
+from reportlab.lib.styles import getSampleStyleSheet
 
 # =====================================================================
 # DESIGN TOKENS
@@ -407,7 +420,9 @@ class PaymentPage(ctk.CTkFrame):
 
             payment = response.json()
 
-            self.payment_success(payment)
+            visit = self.payment_success_callback(payment)
+
+            self.final_receipt_popup(payment,visit)
 
         except Exception as e:
 
@@ -541,5 +556,251 @@ class PaymentPage(ctk.CTkFrame):
 
     
     def final_receipt_popup(self, payment, visit):
-        pass
+        popup = ctk.CTkToplevel(self)
+        popup.title("Registration Completed")
+
+        popup.geometry("650x900")
+
+        popup.grab_set()
+
+        popup.configure(fg_color=BG)
+
+        qr_path = self.generate_qr_code(
+            self.patient["patientId"],
+            visit["visitId"],
+            visit["queueNumber"],
+            self.patient["departmentName"]
+        )
+
+        badge = ctk.CTkLabel(
+            popup,
+            text="✓",
+            width=80,
+            height=80,
+            corner_radius=40,
+            fg_color=PRIMARY_SOFT,
+            text_color=PRIMARY,
+            font=(FONT_DISPLAY,36)
+        )
+
+        badge.pack(pady=(25,10))
+
+        ctk.CTkLabel(
+            popup,
+            text="Registration Completed Successfully",
+            font=(FONT_DISPLAY,22),
+            text_color=TEXT
+        ).pack()
+
+        card = ctk.CTkFrame(
+            popup,
+            fg_color=SURFACE,
+            border_width=1,
+            border_color=BORDER,
+            corner_radius=18
+        )
+
+        card.pack(fill="both", padx=30, pady=20, expand=True)    
+        qr_image = ctk.CTkImage(
+            light_image=Image.open(qr_path),
+            dark_image=Image.open(qr_path),
+            size=(120, 120)
+        )
+
+        ctk.CTkLabel(
+            card,
+            image=qr_image,
+            text=""
+        ).pack(pady=(20, 10))
+
+        rows = [
+
+            ("Patient ID", self.patient["patientId"]),
+
+            ("Patient Name", self.patient["name"]),
+
+            ("Visit ID", visit["visitId"]),
+
+            ("Queue Number", f"Q-{visit['queueNumber']}"),
+
+            ("Department", self.patient["departmentName"]),
+
+            ("Payment ID", payment["paymentId"]),
+
+            ("Receipt No", payment["receiptNumber"]),
+
+            ("Amount", f"₹ {payment['amount']}"),
+
+            ("Status", payment["paymentStatus"]),
+
+            ("Valid Till", payment["validTill"])
+
+        ]
+
+        for label, value in rows:
+
+            row = ctk.CTkFrame(
+                card,
+                fg_color="transparent"
+            )
+
+            row.pack(fill="x", padx=25, pady=5)
+
+            ctk.CTkLabel(
+                row,
+                text=label,
+                width=140,
+                anchor="w",
+                font=(FONT_DISPLAY, 13),
+                text_color=TEXT_SOFT
+            ).pack(side="left")
+
+            ctk.CTkLabel(
+                row,
+                text=str(value),
+                font=(FONT_BODY, 13),
+                text_color=TEXT
+            ).pack(side="right")
         
+        button_frame = ctk.CTkFrame(
+            popup,
+            fg_color="transparent"
+        )
+
+        button_frame.pack(
+            fill="x",
+            padx=35,
+            pady=(10,25)
+        )
+
+        ctk.CTkButton(
+
+            button_frame,
+
+            text="Generate & Print Slip",
+
+            height=45,
+
+            fg_color=PRIMARY,
+
+            hover_color=PRIMARY_H,
+
+            command=lambda:self.generate_pdf_slip(
+
+                self.patient["patientId"],
+
+                visit["visitId"],
+
+                visit["queueNumber"],
+
+                self.patient["departmentName"],
+
+                payment
+
+            )
+
+        ).pack(fill="x", pady=(0,10))
+
+        ctk.CTkButton(
+
+            button_frame,
+
+            text="Done",
+
+            height=45,
+
+            fg_color="transparent",
+
+            border_width=1,
+
+            border_color=BORDER,
+
+            text_color=TEXT,
+
+            command=lambda: self.finish_registration(popup)
+
+        ).pack(fill="x")
+
+
+    def generate_qr_code(self, patient_id, visit_id, queue_number, department):
+        qr_data = (
+            f"Patient ID: {patient_id}\n"
+            f"Visit ID: {visit_id}\n"
+            f"Department: {department}\n"
+            f"Queue Number: {queue_number}"
+        )
+
+        qr = qrcode.QRCode(version=1, box_size=10, border=5)
+        qr.add_data(qr_data)
+        qr.make(fit=True)
+
+        img = qr.make_image(fill_color="black", back_color="white")
+
+        qr_filename = f"{patient_id}_qr.png"
+
+        img.save(qr_filename)
+
+        return qr_filename
+
+
+    def generate_pdf_slip(self,patient_id,visit_id,queue_number,department,payment):
+
+        qr_path = self.generate_qr_code(
+            patient_id,
+            visit_id,
+            queue_number,
+            department
+        )
+
+        pdf_file = f"{patient_id}_Slip.pdf"
+
+        doc = SimpleDocTemplate(pdf_file)
+
+        styles = getSampleStyleSheet()
+
+        elements = [
+
+            Paragraph("SMARTCARE ID", styles["Title"]),
+
+            Paragraph("Patient Receipt", styles["Heading2"]),
+
+            Spacer(1,20),
+
+            Paragraph(f"<b>Patient ID:</b> {patient_id}", styles["Normal"]),
+
+            Paragraph(f"<b>Visit ID:</b> {visit_id}", styles["Normal"]),
+
+            Paragraph(f"<b>Department:</b> {department}", styles["Normal"]),
+
+            Paragraph(f"<b>Queue Number:</b> Q-{queue_number}", styles["Normal"]),
+
+            Spacer(1,15),
+
+            Paragraph(f"<b>Payment ID:</b> {payment['paymentId']}", styles["Normal"]),
+
+            Paragraph(f"<b>Receipt No:</b> {payment['receiptNumber']}", styles["Normal"]),
+
+            Paragraph(f"<b>Amount:</b> ₹ {payment['amount']}", styles["Normal"]),
+
+            Paragraph(f"<b>Status:</b> {payment['paymentStatus']}", styles["Normal"]),
+
+            Paragraph(f"<b>Valid Till:</b> {payment['validTill']}", styles["Normal"]),
+
+            Spacer(1,20),
+
+            PDFImage(qr_path,width=150,height=150)
+
+        ]
+
+        doc.build(elements)
+
+        os.system(f'open "{pdf_file}"')
+
+
+    def finish_registration(self, popup):
+
+        popup.destroy()
+
+        self.destroy()
+
+        self.go_back()
