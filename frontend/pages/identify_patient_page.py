@@ -723,12 +723,12 @@ class IdentifyPatientPage(ctk.CTkFrame):
     
 
 
-    def after_payment_success_existing(self, payment):
+    # def after_payment_success_existing(self, payment):
 
-        print("===== after_payment_success_existing =====")
+    #     print("===== after_payment_success_existing =====")
 
-        visit = self.generate_existing_visit()
+    #     visit = self.generate_existing_visit()
 
-        print("Generated Visit:", visit)
+    #     print("Generated Visit:", visit)
 
-        return visit
+    #     return visit
