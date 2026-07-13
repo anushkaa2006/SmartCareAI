@@ -819,12 +819,18 @@ class RegistrationPage(ctk.CTkFrame):
             "departmentId": self.department_id
         }
 
+        print("Generate Existing Visit Payload:", payload)
+
         try:
 
             response = requests.post(
                 "http://localhost:9090/visits/create",
                 json=payload
             )
+
+            print("Visit Status:", response.status_code)
+            print("Visit Response:", response.text)
+
 
             if response.status_code != 200:
                 messagebox.showerror(
@@ -834,6 +840,8 @@ class RegistrationPage(ctk.CTkFrame):
                 return None
 
             data = response.json()
+
+            print("Visit Data:", data)
 
             data["departmentName"] = self.department_name
 
@@ -934,7 +942,7 @@ class RegistrationPage(ctk.CTkFrame):
     def after_payment_success_existing(self, payment):
 
         visit = self.generate_existing_visit()
-        
+        return visit
 
 
     def generate_slip_existing(self,data):

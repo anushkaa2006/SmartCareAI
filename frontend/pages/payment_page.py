@@ -443,8 +443,13 @@ class PaymentPage(ctk.CTkFrame):
 
             payment = response.json()
 
+            print("Calling callback...")
+            print(self.payment_success_callback)
+
             visit = self.payment_success_callback(payment)
 
+            print("Callback returned:", visit)
+            
             self.final_receipt_popup(payment,visit)
 
         except Exception as e:
@@ -579,6 +584,11 @@ class PaymentPage(ctk.CTkFrame):
 
     
     def final_receipt_popup(self, payment, visit):
+
+        print("========== RECEIPT ==========")
+        print("Patient:", self.patient)
+        print("Payment:", payment)
+        print("Visit:", visit)
         popup = ctk.CTkToplevel(self)
         popup.title("Registration Completed")
 
@@ -637,29 +647,37 @@ class PaymentPage(ctk.CTkFrame):
             text=""
         ).pack(pady=(20, 10))
 
-        rows = [
 
-            ("Patient ID", self.patient["patientId"]),
+        try:
+            rows = [
 
-            ("Patient Name", self.patient["name"]),
+                ("Patient ID", self.patient["patientId"]),
 
-            ("Visit ID", visit["visitId"]),
+                ("Patient Name", self.patient["name"]),
 
-            ("Queue Number", f"Q-{visit['queueNumber']}"),
+                ("Visit ID", visit["visitId"]),
 
-            ("Department", self.patient["departmentName"]),
+                ("Queue Number", f"Q-{visit['queueNumber']}"),
 
-            ("Payment ID", payment["paymentId"]),
+                ("Department", self.patient["departmentName"]),
 
-            ("Receipt No", payment["receiptNumber"]),
+                ("Payment ID", payment["paymentId"]),
 
-            ("Amount", f"₹ {payment['amount']}"),
+                ("Receipt No", payment["receiptNumber"]),
 
-            ("Status", payment["paymentStatus"]),
+                ("Amount", f"₹ {payment['amount']}"),
 
-            ("Valid Till", payment["validTill"])
+                ("Status", payment["paymentStatus"]),
 
-        ]
+                ("Valid Till", payment["validTill"])
+
+            ]
+
+        except Exception as e:
+            import traceback
+            traceback.print_exc()
+            print("ERROR BUILDING ROWS:", e)
+            raise
 
         for label, value in rows:
 
