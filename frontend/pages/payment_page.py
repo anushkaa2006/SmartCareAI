@@ -449,7 +449,7 @@ class PaymentPage(ctk.CTkFrame):
             visit = self.payment_success_callback(payment)
 
             print("Callback returned:", visit)
-            
+
             self.final_receipt_popup(payment,visit)
 
         except Exception as e:
@@ -853,7 +853,7 @@ class PaymentPage(ctk.CTkFrame):
 
 
     def finish_registration(self, popup):
-
+       
         popup.destroy()
 
         self.destroy()

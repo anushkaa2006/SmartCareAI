@@ -318,14 +318,12 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
         payload = {
             "patientId": patient_id,
-            "departmentId": self.department_map[self.department_dropdown.get()]
+            "departmentId": self.selected_department_id
         }
 
         print("Payload:", payload)
 
-        response = requests.post(
-            "http://localhost:9090/visits/create",
-            json=payload
+        response = requests.post("http://localhost:9090/visits/create",json=payload
         )
 
         print(response.status_code)
@@ -336,12 +334,11 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
         data = response.json()
 
+        data["departmentName"] = self.selected_department_name
+
         print("Generated Visit:", data)
 
-        data["departmentName"] = self.department_dropdown.get()
-
         return data
-
 
     def validate_payment(self):
 
@@ -355,6 +352,8 @@ class IdentifyPatientPage(ctk.CTkFrame):
             return
 
         department_id = self.department_map[department_name]
+        self.selected_department_name = department_name
+        self.selected_department_id = department_id
 
         payload = {
             "patientId": self.current_patient_id,

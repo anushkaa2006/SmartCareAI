@@ -899,7 +899,7 @@ class RegistrationPage(ctk.CTkFrame):
                     patient,
                     data,
                     payment_success_callback=lambda payment: self.after_payment_success_existing(payment),
-                    go_back_page=lambda: self.go_back
+                    go_back_page=self.go_back
                 )
 
             else:
