@@ -455,7 +455,7 @@ class RegistrationPage(ctk.CTkFrame):
                     self.update_mode =True
 
                     self.department_name = self.department.get()
-                   
+                    self.department_id = self.department_map[self.department_name]
                     self.enable_update_mode()
                     return
             self.show_page2()
@@ -899,7 +899,7 @@ class RegistrationPage(ctk.CTkFrame):
                     patient,
                     data,
                     payment_success_callback=lambda payment: self.after_payment_success_existing(payment),
-                    go_back_page=lambda: self.show_page2()
+                    go_back_page=lambda: self.go_back
                 )
 
             else:
@@ -918,16 +918,25 @@ class RegistrationPage(ctk.CTkFrame):
                         },
 
                         validation_response={
-
-                            "consultationFee":0,
-
-                            "billingPolicy":"ALREADY_PAID"
-
+                            "consultationFee": 0,
+                            "billingPolicy": "ALREADY_PAID"
                         },
 
                         payment_success_callback=lambda x: visit,
 
-                        go_back_page=self.go_back
+                        go_back_page=self.go_back,
+
+                        visit=visit,
+
+                        payment={
+                            "paymentId": "-",
+                            "receiptNumber": "-",
+                            "paymentStatus": "ALREADY PAID",
+                            "amount": 0,
+                            "validTill": data.get("validTill", "-")
+                        },
+
+                        already_paid=True
                     )
 
         except Exception as e:
