@@ -382,13 +382,24 @@ class IdentifyPatientPage(ctk.CTkFrame):
                 if visit is None:
                     return
 
-                payment = {
-                    "paymentId": "-",
-                    "receiptNumber": "-",
-                    "paymentStatus": "ALREADY PAID",
-                    "amount": 0,
-                    "validTill": data.get("validTill", "-")
+                payment_response = requests.get(
+                "http://localhost:9090/payment/latest",
+                params={
+                    "patientId": self.current_patient_id,
+                    "departmentId": department_id
                 }
+            )
+                print("Latest Payment Status:", payment_response.status_code)
+                print("Latest Payment Response:", payment_response.text)
+
+                if payment_response.status_code != 200:
+                    messagebox.showerror(
+                        "Error",
+                        "Unable to fetch previous payment."
+                    )
+                    return
+
+                payment = payment_response.json()
 
                 patient = {
                     "patientId": self.current_patient_id,
@@ -401,7 +412,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
                     patient=patient,
                     validation_response={
                         "billingPolicy": "ALREADY_PAID",
-                        "consultationFee": 0
+                        "consultationFee": float(payment["amount"])
                     },
                     payment_success_callback=lambda x: visit,
                     go_back_page=self.go_back_command,
@@ -412,9 +423,7 @@ class IdentifyPatientPage(ctk.CTkFrame):
 
         except Exception as e:
             messagebox.showerror(
-                "Error",
-                str(e)
-            )
+                "Error",str(e))
    
 
     def after_payment_success(self, payment):

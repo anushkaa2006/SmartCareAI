@@ -11,18 +11,22 @@ import com.smartcare.model.Payment;
 @Repository
 public interface PaymentRepository extends JpaRepository<Payment,String> {
 
-    Optional<Payment>
-    findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
+    Optional<Payment> findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
             String patientId,
             String paymentStatus
     );
 
-    Optional<Payment>
-    findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
+    Optional<Payment> findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
             String patientId,
             String departmentId,
             String paymentStatus
     );
     long countByPaymentDate(LocalDate paymentDate);
 
+    Optional<Payment> findFirstByPatientIdAndDepartmentIdOrderByPaymentDateDesc(
+                String patientId,
+                String departmentId
+    );
+   
+    
 }

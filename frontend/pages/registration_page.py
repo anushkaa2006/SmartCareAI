@@ -705,18 +705,41 @@ class RegistrationPage(ctk.CTkFrame):
 
                 if visit:
 
+                    payment_response = requests.get(
+                        "http://localhost:9090/payment/latest",
+                        params={
+                            "patientId": self.new_patient["patientId"],
+                            "departmentId": self.new_patient["departmentId"]
+                        }
+                    )
+
+                    if payment_response.status_code != 200:
+                        messagebox.showerror(
+                            "Error",
+                            "Unable to fetch previous payment."
+                        )
+                        return
+
+                    payment = payment_response.json()
+
                     self.open_payment_page(
 
                         patient=self.new_patient,
 
                         validation_response={
-                            "consultationFee": 0,
+                            "consultationFee": payment["amount"],
                             "billingPolicy": "ALREADY_PAID"
                         },
 
                         payment_success_callback=lambda x: visit,
 
-                        go_back_page=self.go_back
+                        go_back_page=self.go_back,
+
+                        visit=visit,
+
+                        payment=payment,
+
+                        already_paid=True
                     )
 
         except Exception as e:
@@ -898,6 +921,25 @@ class RegistrationPage(ctk.CTkFrame):
 
                 if visit:
 
+                    payment_response = requests.get(
+                        "http://localhost:9090/payment/latest",
+                        params={
+                            "patientId": self.patient["patientId"],
+                            "departmentId": self.department_id
+                        }
+                    )
+                    print("Latest Payment Status:", payment_response.status_code)
+                    print("Latest Payment Response:", payment_response.text)
+
+                    if payment_response.status_code != 200:
+                        messagebox.showerror(
+                            "Error",
+                            "Unable to fetch previous payment."
+                        )
+                        return
+
+                    payment = payment_response.json()
+
                     self.open_payment_page(
 
                         patient={
@@ -908,7 +950,7 @@ class RegistrationPage(ctk.CTkFrame):
                         },
 
                         validation_response={
-                            "consultationFee": 0,
+                            "consultationFee": payment["amount"],
                             "billingPolicy": "ALREADY_PAID"
                         },
 
@@ -918,13 +960,7 @@ class RegistrationPage(ctk.CTkFrame):
 
                         visit=visit,
 
-                        payment={
-                            "paymentId": "-",
-                            "receiptNumber": "-",
-                            "paymentStatus": "ALREADY PAID",
-                            "amount": 0,
-                            "validTill": data.get("validTill", "-")
-                        },
+                        payment=payment,
 
                         already_paid=True
                     )

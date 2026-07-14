@@ -80,4 +80,13 @@ public class PaymentService {
         return "RCP"+ datePart+ String.format("%06d", todayCount + 1);
     }
 
+    public Payment getLatestPayment(String patientId, String departmentId) {
+
+        return paymentRepository
+                .findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
+                        patientId,
+                        "SUCCESS"
+                )
+                .orElseThrow(() -> new RuntimeException("Payment not found"));
+    }
 }

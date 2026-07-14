@@ -383,24 +383,16 @@ class PaymentPage(ctk.CTkFrame):
 
         if self.validation["billingPolicy"] == "ALREADY_PAID":
 
-            payment = {
+            payment = self.payment
+            visit = self.visit
 
-                "paymentId":"-",
+            if visit is None:
+                visit = self.payment_success_callback(payment)
 
-                "receiptNumber":"-",
-
-                "paymentStatus":"ALREADY PAID",
-
-                "amount":0,
-
-                "validTill":"-"
-
-            }
-
-            visit = self.payment_success_callback(payment)
+            print("Already Paid Payment:", payment)
+            print("Already Paid Visit:", visit)
 
             self.final_receipt_popup(payment, visit)
-
             return
 
         payload = {
