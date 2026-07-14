@@ -845,7 +845,7 @@ class PaymentPage(ctk.CTkFrame):
 
 
     def finish_registration(self, popup):
-       
+        print("FINISH REGISTRATION CALLED")
         popup.destroy()
 
         self.destroy()

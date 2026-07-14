@@ -620,27 +620,46 @@ class RegistrationPage(ctk.CTkFrame):
                     }
                    
                     source = "captured_faces/patient_face.jpg"
-                    destination = f"captured_faces/{patient_id}.jpg"
-                    shutil.copy(source, destination)
-                    
-                    image = face_recognition.load_image_file(source)
-                    encodings = face_recognition.face_encodings(image)
 
-                    if len(encodings) == 0:
-                        messagebox.showerror("Face Error", "No face detected in captured image")
-                        self.generate_btn.configure(text="Complete Registration & Generate Slip  →", state="normal")
-                        return
+                    if os.path.exists(source):
 
-                    embedding = encodings[0].tolist()
-                    embedding_string = ",".join(map(str, embedding))
+                        try:
+                            destination = f"captured_faces/{patient_id}.jpg"
+                            shutil.copy(source, destination)
 
-                    face_payload = {
-                        "patientId": patient_id,
-                        "imagePath": destination,
-                        "embeddingVector": embedding_string
-                    }
+                            image = face_recognition.load_image_file(source)
+                            encodings = face_recognition.face_encodings(image)
 
-                    requests.post("http://localhost:9090/patients/face/save", json=face_payload, timeout=3)
+                            if len(encodings) > 0:
+
+                                embedding = encodings[0].tolist()
+                                embedding_string = ",".join(map(str, embedding))
+
+                                face_payload = {
+                                    "patientId": patient_id,
+                                    "imagePath": destination,
+                                    "embeddingVector": embedding_string
+                                }
+
+                                response = requests.post(
+                                    "http://localhost:9090/patients/face/save",
+                                    json=face_payload,
+                                    timeout=3
+                                )
+
+                                if response.status_code == 200:
+                                    print("✓ Face saved successfully.")
+                                else:
+                                    print("⚠ Face save failed:", response.text)
+
+                            else:
+                                print("⚠ No face detected. Continuing without face enrollment.")
+
+                        except Exception as e:
+                            print("⚠ Face enrollment skipped:", str(e))
+
+                    else:
+                        print("⚠ No face captured. Continuing without face enrollment.")
 
                     self.validate_payment_new()
 
@@ -791,40 +810,62 @@ class RegistrationPage(ctk.CTkFrame):
 
     def update_existing_patient(self):
         try:
+
+            # If no face captured, skip face update
             if self.current_frame is None:
-                messagebox.showerror("Error","Please capture patient's face first")
+                print("No face captured. Skipping face update.")
+                self.validate_payment_existing()
                 return
-            
-            os.makedirs("captured_faces", exist_ok= True)
-            image_path = os.path.join("captured_faces",f"{self.patient['patientId']}.jpg")
-            cv2.imwrite(image_path,self.current_frame)
+
+            os.makedirs("captured_faces", exist_ok=True)
+
+            image_path = os.path.join(
+                "captured_faces",
+                f"{self.patient['patientId']}.jpg"
+            )
+
+            cv2.imwrite(image_path, self.current_frame)
 
             image = face_recognition.load_image_file(image_path)
             encodings = face_recognition.face_encodings(image)
-            if len(encodings) ==0:
-                messagebox.showerror("Error"," No face detected.")
-                return
-            
-            embedding = encodings[0].tolist()
-            embedding_string = ",".join(map(str,embedding))
 
+            if len(encodings) == 0:
+                messagebox.showwarning(
+                    "Warning",
+                    "No face detected. Continuing without updating face."
+                )
+                self.validate_payment_existing()
+                return
+
+            embedding = encodings[0].tolist()
+            embedding_string = ",".join(map(str, embedding))
 
             payload = {
                 "patientId": self.patient["patientId"],
                 "imagePath": image_path,
-                "embeddingVector": embedding_string                            
+                "embeddingVector": embedding_string
             }
-            response = requests.put(("http://localhost:9090/patients/face/update"),
-                                    json = payload)
 
-            if response.status_code!=200:
-                messagebox.showerror("Error", response.text)
-                return
-            
+            response = requests.put(
+                "http://localhost:9090/patients/face/update",
+                json=payload
+            )
+
+            if response.status_code != 200:
+                messagebox.showwarning(
+                    "Warning",
+                    "Face update failed. Continuing without updating face."
+                )
+
             self.validate_payment_existing()
 
         except Exception as e:
-            messagebox.showerror("Error",str(e))
+            messagebox.showwarning(
+                "Warning",
+                f"Face update skipped.\n{str(e)}"
+            )
+
+            self.validate_payment_existing()
 
 
 
