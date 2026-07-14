@@ -434,11 +434,9 @@ class RegistrationPage(ctk.CTkFrame):
                 "dob": dob,
                 "phone": self.phone.get().strip()
             }
-            print(payload)
+
             response = requests.post("http://localhost:9090/patients/check-existing",json=payload)
 
-            print("Status:", response.status_code)
-            print("Body:", repr(response.text))
             if response.status_code == 204:
                 self.show_page2()
                 return
@@ -732,9 +730,6 @@ class RegistrationPage(ctk.CTkFrame):
             "departmentId": self.new_patient["departmentId"]
         }
 
-        print("Generating Visit...")
-        print(payload)
-
         try:
             response = requests.post(
                 "http://localhost:9090/visits/create",
@@ -742,8 +737,6 @@ class RegistrationPage(ctk.CTkFrame):
                 timeout=5
             )
 
-            print("Status:", response.status_code)
-            print("Response:", response.text)
 
             if response.status_code != 200:
                 messagebox.showerror(
@@ -827,9 +820,6 @@ class RegistrationPage(ctk.CTkFrame):
                 "http://localhost:9090/visits/create",
                 json=payload
             )
-
-            print("Visit Status:", response.status_code)
-            print("Visit Response:", response.text)
 
 
             if response.status_code != 200:
@@ -964,227 +954,7 @@ class RegistrationPage(ctk.CTkFrame):
         self.registration_success(patient_id, visit_id, queue_number, department, update_mode=True)
 
 
-    # ---------- SUCCESS POPUP MODAL ----------
-    # def registration_success(self, patient_id, visit_id, queue_number, department, update_mode=False, payment=None):
-
-    #     qr_path = self.generate_qr_code(patient_id, visit_id, queue_number, department)
-
-    #     self.success_popup = ctk.CTkFrame(
-    #         self,
-    #         fg_color=SURFACE,
-    #         corner_radius=20,
-    #         border_width=1,
-    #         border_color=BORDER
-    #     )
-    #     self.success_popup.place(relx=0.5, rely=0.5, anchor="center")
-
-    #     close_btn = ctk.CTkButton(
-    #         self.success_popup,
-    #         text="✕",
-    #         width=32,
-    #         height=32,
-    #         corner_radius=16,
-    #         fg_color="transparent",
-    #         hover_color=SURFACE_ALT,
-    #         text_color=TEXT_SOFT,
-    #         font=(FONT_DISPLAY, 16),
-    #         command=self.close_success_popup
-    #     )
-    #     close_btn.pack(anchor="ne", padx=16, pady=(16, 0))
-
-    #     badge = ctk.CTkLabel(
-    #         self.success_popup,
-    #         text="✓",
-    #         width=64,
-    #         height=64,
-    #         corner_radius=32,
-    #         fg_color=PRIMARY_SOFT,
-    #         text_color=PRIMARY,
-    #         font=(FONT_DISPLAY, 30)
-    #     )
-    #     badge.pack(pady=(0, 10))
-
-    #     if update_mode:
-    #         title = "Visit Created Successfully"
-    #         subtitle = "Face updated and patient added to the queue."
-    #     else:
-    #         title = "Registration Successful"
-    #         subtitle = "Patient details captured and saved."
-
-    #     ctk.CTkLabel(
-    #         self.success_popup,
-    #         text=title,
-    #         font=(FONT_DISPLAY, 22),
-    #         text_color=TEXT
-    #     ).pack()
-
-    #     ctk.CTkLabel(
-    #         self.success_popup,
-    #         text=subtitle,
-    #         font=(FONT_BODY, 13),
-    #         text_color=TEXT_SOFT
-    #     ).pack(pady=(4, 16))
-
-    #     card = ctk.CTkFrame(
-    #         self.success_popup,
-    #         corner_radius=12,
-    #         fg_color=SURFACE_ALT,
-    #         border_width=1,
-    #         border_color=BORDER_SOFT
-    #     )
-    #     card.pack(fill="x", padx=40, pady=10)
-
-    #     qr_ctk_image = ctk.CTkImage(
-    #         light_image=Image.open(qr_path),
-    #         dark_image=Image.open(qr_path),
-    #         size=(130, 130),
-    #     )
-
-    #     qr_label = ctk.CTkLabel(card, image=qr_ctk_image, text="")
-    #     qr_label.image = qr_ctk_image
-    #     qr_label.pack(pady=(20, 10))
-
-    #     details = ctk.CTkFrame(card, fg_color="transparent")
-    #     details.pack(fill="x", padx=24, pady=(0, 20))
-
-    #     rows = [
-    #         ("Patient ID", patient_id),
-    #         ("Visit ID", visit_id),
-    #         ("Queue Number", f"Q-{queue_number}"),
-    #         ("Department", department),
-    #     ]
-
-    #     if payment:
-    #         rows.extend([
-    #             ("Payment ID", payment["paymentId"]),
-    #             ("Receipt No", payment["receiptNumber"]),
-    #             ("Payment Status", payment["paymentStatus"]),
-    #             ("Amount", f"₹ {payment['amount']}"),
-    #             ("Valid Till", payment["validTill"]),
-    #         ])
-
-    #     for label, value in rows:
-    #         row = ctk.CTkFrame(details, fg_color="transparent")
-    #         row.pack(fill="x", pady=4)
-
-    #         ctk.CTkLabel(
-    #             row,
-    #             text=label,
-    #             font=(FONT_BODY, 12),
-    #             text_color=TEXT_FAINT
-    #         ).pack(side="left")
-
-    #         ctk.CTkLabel(
-    #             row,
-    #             text=str(value),
-    #             font=(FONT_DISPLAY, 13),
-    #             text_color=TEXT
-    #         ).pack(side="right")
-
-    #     btn_frame = ctk.CTkFrame(self.success_popup, fg_color="transparent")
-    #     btn_frame.pack(fill="x", padx=40, pady=(10, 30))
-
-    #     ctk.CTkButton(
-    #         btn_frame,
-    #         text="Generate & Print Slip",
-    #         height=46,
-    #         corner_radius=12,
-    #         font=(FONT_DISPLAY, 14),
-    #         fg_color=PRIMARY,
-    #         hover_color=PRIMARY_H,
-    #         text_color=("#FFFFFF", "#0B1121"),
-    #         command=lambda: self.download_slip(
-    #             patient_id,
-    #             visit_id,
-    #             queue_number,
-    #             department,
-    #             qr_path
-    #         ),
-    #     ).pack(fill="x", pady=(0, 10))
-
-    #     ctk.CTkButton(
-    #         btn_frame,
-    #         text="Done",
-    #         height=46,
-    #         corner_radius=12,
-    #         font=(FONT_DISPLAY, 14),
-    #         fg_color="transparent",
-    #         hover_color=SURFACE_ALT,
-    #         text_color=TEXT_SOFT,
-    #         border_width=1,
-    #         border_color=BORDER,
-    #         command=self.close_success_popup
-    #     ).pack(fill="x")
-
-    # def close_success_popup(self):
-    #     if hasattr(self, 'success_popup'):
-    #         self.success_popup.destroy()
-    #     self.show_page1()
-
-    # ---------- PDF & QR UTILS ----------
-    # def generate_qr_code(self, patient_id, visit_id, queue_number, department):
-    #     qr_data = (
-    #         f"Patient ID: {patient_id}\n"
-    #         f"Visit ID: {visit_id}\n"
-    #         f"Department: {department}\n"
-    #         f"Queue Number: {queue_number}"
-    #     )
-    #     qr = qrcode.QRCode(version=1, box_size=10, border=5)
-    #     qr.add_data(qr_data)
-    #     qr.make(fit=True)
-    #     img = qr.make_image(fill_color="black", back_color="white")
-    #     qr_filename = f"{patient_id}_qr.png"
-    #     img.save(qr_filename)
-    #     return qr_filename
-
-    # def generate_pdf_slip(self, patient_id, visit_id, queue_number, department, qr_path,slip_title):
-    #     pdf_file = f"{patient_id}_Slip.pdf"
-    #     doc = SimpleDocTemplate(pdf_file)
-    #     styles = getSampleStyleSheet()
-    #     elements = [
-    #         Paragraph("SMARTCARE ID", styles['Title']),
-    #         Paragraph(slip_title, styles['Heading2']),
-    #         Spacer(1, 20),
-    #         Paragraph(f"<b>Patient ID:</b> {patient_id}", styles['Normal']),
-    #         Paragraph(f"<b>Visit ID:</b> {visit_id}", styles['Normal']),
-    #         Paragraph(f"<b>Department:</b> {department}", styles['Normal']),
-    #         Paragraph(f"<b>Queue Number:</b> Q-{queue_number}", styles['Normal']),
-    #         Spacer(1, 20),
-    #         PDFImage(qr_path, width=150, height=150),
-    #     ]
-    #     doc.build(elements)
-    #     return pdf_file
-
-    # def download_slip(self, patient_id, visit_id, queue_number, department, qr_path):
-    #     slip_title = (
-    #         "Hospital Visit Slip"
-    #         if self.update_mode
-    #         else "Patient Registration Slip"
-    #     )
-
-    #     pdf_file = self.generate_pdf_slip(
-    #         patient_id,
-    #         visit_id,
-    #         queue_number,
-    #         department,
-    #         qr_path,
-    #         slip_title
-    #     )
-
-    #     try:
-
-    #         if sys.platform == "darwin":
-    #             subprocess.Popen(["open", pdf_file])
-
-    #         elif sys.platform == "win32":
-    #             os.startfile(pdf_file)
-
-    #         else:
-    #             subprocess.Popen(["xdg-open", pdf_file])
-
-    #     except Exception as e:
-    #         print(e)
-
+  
             
     def calculate_age(self, event=None):
 
