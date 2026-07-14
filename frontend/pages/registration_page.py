@@ -621,7 +621,7 @@ class RegistrationPage(ctk.CTkFrame):
                    
                     source = "captured_faces/patient_face.jpg"
 
-                    if os.path.exists(source):
+                    if self.current_frame is not None and os.path.exists(source):
 
                         try:
                             destination = f"captured_faces/{patient_id}.jpg"
@@ -666,6 +666,7 @@ class RegistrationPage(ctk.CTkFrame):
                 else:
                     messagebox.showerror("Server Error", f"Failed with status code: {response.status_code}")
 
+
             except requests.exceptions.ConnectionError:
                 print("⚠️ Spring Boot API is offline. Running in UI Test Mode.")
                 self.registration_success(
@@ -675,18 +676,30 @@ class RegistrationPage(ctk.CTkFrame):
                     department=self.department.get()
                 )
 
+
         except Exception as e:
             messagebox.showerror("Application Error", f"An error occurred:\n{str(e)}")
+        
+        
         finally:
             try:
+                # Delete temporary captured image
+                temp_file = "captured_faces/patient_face.jpg"
+
+                if os.path.exists(temp_file):
+                    os.remove(temp_file)
+
                 if self.winfo_exists():
                     self.generate_btn.configure(
                         text="Complete Registration & Generate Slip  →",
                         state="normal"
                     )
-            except:
-                pass
+
+            except Exception as e:
+                print(e)
     
+
+
     def validate_payment_new(self):
 
         payload = {

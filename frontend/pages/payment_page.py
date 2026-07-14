@@ -62,7 +62,7 @@ class PaymentPage(ctk.CTkFrame):
 
         self.build_header()
         self.build_ui()
-
+        
     
     def build_header(self):
 
@@ -111,8 +111,26 @@ class PaymentPage(ctk.CTkFrame):
                 brand,
                 text="SMARTCARE ID",
                 font=(FONT_DISPLAY,15),
-                text_color=SURFACE
+                text_color=TEXT
             ).pack(side="left")
+
+
+            self.theme_switch = ctk.CTkSwitch(
+            header,
+            text="Dark Mode",
+            command=self.toggle_theme,
+            progress_color="#FFFFFF",
+            text_color="white"
+            )
+
+            self.theme_switch.pack(
+                side="right",
+                padx=20
+            )
+
+
+            if ctk.get_appearance_mode() == "Dark":
+                self.theme_switch.select()
     
     def build_ui(self):
 
@@ -216,6 +234,8 @@ class PaymentPage(ctk.CTkFrame):
                 font=(FONT_BODY,15),
                 text_color=TEXT
             ).pack(side="left")
+
+    def toggle_theme(self): ctk.set_appearance_mode("dark" if self.theme_switch.get() == 1 else "light")
 
 
     def build_payment_method(self,parent):
