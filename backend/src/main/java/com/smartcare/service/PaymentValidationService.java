@@ -41,6 +41,8 @@ public class PaymentValidationService {
         return validateDepartmentWise(request, config);
     }
 
+
+
     private PaymentValidationResponse validateHospitalWise(
             PaymentValidationRequest request,
             HospitalConfig config) {
@@ -92,6 +94,8 @@ public class PaymentValidationService {
                 WorkflowAction.PAYMENT_REQUIRED
         );
     }
+
+
 
     private PaymentValidationResponse validateDepartmentWise(
             PaymentValidationRequest request,
@@ -146,6 +150,8 @@ public class PaymentValidationService {
         );
     }
 
+
+
     private PaymentValidationResponse buildResponse(
             boolean paymentRequired,
             BigDecimal consultationFee,
@@ -168,6 +174,8 @@ public class PaymentValidationService {
 
         return response;
     }
+
+    
 
     private BigDecimal getConsultationFee(String departmentId) {
 

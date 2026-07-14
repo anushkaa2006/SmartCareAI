@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 
 import com.smartcare.dto.PaymentRequest;
 import com.smartcare.dto.PaymentResponse;
+import com.smartcare.enums.PaymentFlag;
 import com.smartcare.enums.PaymentStatus;
 import com.smartcare.model.HospitalConfig;
 import com.smartcare.model.Payment;
@@ -40,6 +41,8 @@ public class PaymentService {
         return buildResponse(payment);
     }
 
+
+    
     private PaymentResponse buildResponse(Payment payment) {
 
         PaymentResponse response = new PaymentResponse();
@@ -64,6 +67,9 @@ public class PaymentService {
 
         return response;
     }
+
+
+
     private String generatePaymentId(){
         LocalDate today= LocalDate.now();
         String datePart = today.format(DateTimeFormatter.ofPattern("yyyyMMdd"));
@@ -71,6 +77,9 @@ public class PaymentService {
         
         return "REC" + datePart + String.format("%06d", todayCount + 1);
     }
+
+
+
     private String generateReceiptNumber() {
 
         LocalDate today = LocalDate.now();
@@ -80,13 +89,31 @@ public class PaymentService {
         return "RCP"+ datePart+ String.format("%06d", todayCount + 1);
     }
 
+
+
     public Payment getLatestPayment(String patientId, String departmentId) {
 
-        return paymentRepository
-                .findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
-                        patientId,
-                        "SUCCESS"
-                )
-                .orElseThrow(() -> new RuntimeException("Payment not found"));
+        HospitalConfig config = hospitalConfigService.getConfiguration();
+
+        if (config.getPaymentFlag() == PaymentFlag.HOSPITAL_WISE.getValue()) {
+
+            return paymentRepository
+                    .findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
+                            patientId,
+                            PaymentStatus.SUCCESS.name()
+                    )
+                    .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+        } else {
+
+            return paymentRepository
+                    .findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
+                            patientId,
+                            departmentId,
+                            PaymentStatus.SUCCESS.name()
+                    )
+                    .orElseThrow(() -> new RuntimeException("Payment not found"));
+
+        }
     }
 }
