@@ -650,7 +650,7 @@ class PaymentPage(ctk.CTkFrame):
         qr_image = ctk.CTkImage(
             light_image=Image.open(qr_path),
             dark_image=Image.open(qr_path),
-            size=(120, 120)
+            size=(180, 180)
         )
 
         ctk.CTkLabel(
@@ -780,13 +780,11 @@ class PaymentPage(ctk.CTkFrame):
 
             qr_data = f"""
         SMARTCARE ID
-
         Patient ID : {visit['patientId']}
         Patient Name : {self.patient['name']}
         Visit ID : {visit['visitId']}
         Department : {self.patient['departmentName']}
         Queue Number : Q-{visit['queueNumber']}
-
         Payment ID : {payment['paymentId']}
         Receipt No : {payment['receiptNumber']}
         Amount : ₹ {payment['amount']}
