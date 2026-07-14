@@ -429,9 +429,9 @@ class PaymentPage(ctk.CTkFrame):
 
         try:
 
-            self.confirm_btn.configure(state="disabled",text="Processing...")
+            self.confirm_btn.configure(state="normal",text="Processing...")
 
-            self.cancel_btn.configure(state="disabled")
+            self.cancel_btn.configure(state="normal")
             self.configure(cursor="watch")
 
             response = requests.post("http://localhost:9090/payment/save",
@@ -865,7 +865,7 @@ class PaymentPage(ctk.CTkFrame):
 
 
     def finish_registration(self, popup):
-        print("FINISH REGISTRATION CALLED")
+
         popup.destroy()
 
         self.destroy()

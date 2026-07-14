@@ -29,8 +29,7 @@ public class PaymentValidationService {
     @Autowired
     private DepartmentFeeService departmentFeeService;
 
-    public PaymentValidationResponse validatePayment(
-            PaymentValidationRequest request) {
+    public PaymentValidationResponse validatePayment(PaymentValidationRequest request) {
 
         HospitalConfig config = hospitalConfigService.getConfiguration();
 
@@ -44,11 +43,9 @@ public class PaymentValidationService {
 
 
     private PaymentValidationResponse validateHospitalWise(
-            PaymentValidationRequest request,
-            HospitalConfig config) {
+            PaymentValidationRequest request,HospitalConfig config) {
 
-        BigDecimal consultationFee =
-                getConsultationFee(request.getDepartmentId());
+        BigDecimal consultationFee =getConsultationFee(request.getDepartmentId());
 
         Optional<Payment> payment =
                 paymentRepository
@@ -175,7 +172,7 @@ public class PaymentValidationService {
         return response;
     }
 
-    
+
 
     private BigDecimal getConsultationFee(String departmentId) {
 
