@@ -1,6 +1,5 @@
 package com.smartcare.Controller;
 
-import com.smartcare.dto.ExistingPatientVisitRequest;
 import com.smartcare.dto.FaceDataRequest;
 import com.smartcare.dto.PatientRequest;
 import com.smartcare.dto.PatientResponse;
@@ -34,10 +33,10 @@ public class PatientController {
     @Autowired
     private PatientRepository patientRepository;        
 
-    @PostMapping("/register")
-    public PatientResponse registerPatient(@RequestBody PatientRequest request) {
-        return patientService.registerPatient(request);
-    }
+//     @PostMapping("/register")
+//     public PatientResponse registerPatient(@RequestBody PatientRequest request) {
+//         return patientService.registerPatient(request);
+//     }
 
 
     @PostMapping("/register/basic")
@@ -67,15 +66,15 @@ public class PatientController {
                 return patientRepository.findById(patientId).orElse(null);
         }
 
-        @PostMapping("/visit/existing")
-        public PatientResponse createVisitForExistingPatient(
-                @RequestBody ExistingPatientVisitRequest request
-        ){
-                return patientService.createVisitForExistingPatient(
-                request.getPatientId(),
-                request.getDepartment()
-                );
-        }
+        // @PostMapping("/visit/existing")
+        // public PatientResponse createVisitForExistingPatient(
+        //         @RequestBody ExistingPatientVisitRequest request
+        // ){
+        //         return patientService.createVisitForExistingPatient(
+        //         request.getPatientId(),
+        //         request.getDepartment()
+        //         );
+        // }
 
         @PostMapping("/check-existing")
         public ResponseEntity<Patient> checkExistingPatient(@RequestBody ExistingPatientCheckRequest request){

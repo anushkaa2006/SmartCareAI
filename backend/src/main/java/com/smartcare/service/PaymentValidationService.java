@@ -95,11 +95,9 @@ public class PaymentValidationService {
 
 
     private PaymentValidationResponse validateDepartmentWise(
-            PaymentValidationRequest request,
-            HospitalConfig config) {
+            PaymentValidationRequest request,HospitalConfig config) {
 
-        BigDecimal consultationFee =
-                getConsultationFee(request.getDepartmentId());
+        BigDecimal consultationFee = getConsultationFee(request.getDepartmentId());
 
         Optional<Payment> payment =
                 paymentRepository
@@ -158,8 +156,7 @@ public class PaymentValidationService {
             LocalDate validTill,
             WorkflowAction action) {
 
-        PaymentValidationResponse response =
-                new PaymentValidationResponse();
+        PaymentValidationResponse response = new PaymentValidationResponse();
 
         response.setPaymentRequired(paymentRequired);
         response.setConsultationFee(consultationFee);

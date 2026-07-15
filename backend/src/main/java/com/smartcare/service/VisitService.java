@@ -89,8 +89,7 @@ public class VisitService {
 
     private String generateQueueId() {
 
-        String datePart = LocalDate.now().format(
-                        DateTimeFormatter.ofPattern("yyyyMMdd"));
+        String datePart = LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd"));
 
         long count =queueRepository.countByRegistrationDate(datePart);
 
