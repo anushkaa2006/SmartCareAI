@@ -33,10 +33,6 @@ public class PatientController {
     @Autowired
     private PatientRepository patientRepository;        
 
-//     @PostMapping("/register")
-//     public PatientResponse registerPatient(@RequestBody PatientRequest request) {
-//         return patientService.registerPatient(request);
-//     }
 
 
     @PostMapping("/register/basic")
@@ -66,15 +62,7 @@ public class PatientController {
                 return patientRepository.findById(patientId).orElse(null);
         }
 
-        // @PostMapping("/visit/existing")
-        // public PatientResponse createVisitForExistingPatient(
-        //         @RequestBody ExistingPatientVisitRequest request
-        // ){
-        //         return patientService.createVisitForExistingPatient(
-        //         request.getPatientId(),
-        //         request.getDepartment()
-        //         );
-        // }
+       
 
         @PostMapping("/check-existing")
         public ResponseEntity<Patient> checkExistingPatient(@RequestBody ExistingPatientCheckRequest request){
@@ -87,7 +75,7 @@ public class PatientController {
                         request.getPhone()
                 );  
                  if(patient == null){
-                        return ResponseEntity.noContent().build();   // HTTP 204
+                        return ResponseEntity.noContent().build();  
                 }
 
                 return ResponseEntity.ok(patient);
