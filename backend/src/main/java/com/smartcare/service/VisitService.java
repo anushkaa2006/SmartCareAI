@@ -11,6 +11,7 @@ import com.smartcare.model.Queue;
 import com.smartcare.model.Visit;
 import com.smartcare.repository.QueueRepository;
 import com.smartcare.repository.VisitRepository;
+import com.smartcare.enums.VisitStatus;
 
 @Service
 public class VisitService {
@@ -44,7 +45,7 @@ public class VisitService {
 
         visit.setDepartmentId(departmentId);
 
-        visit.setVisitStatus("REGISTERED");
+        visit.setVisitStatus(VisitStatus.REGISTERED.name());
 
         visit.setRegistrationDate(today.format(DateTimeFormatter.ofPattern("yyyyMMdd")) );
 
