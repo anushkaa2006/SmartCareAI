@@ -15,14 +15,13 @@ import com.smartcare.model.Queue;
 import com.smartcare.model.Visit;
 import com.smartcare.repository.DepartmentRepository;
 import com.smartcare.repository.PatientRepository;
-import com.smartcare.repository.PaymentRepository;
+
 import com.smartcare.repository.QueueRepository;
 import com.smartcare.repository.VisitRepository;
 import com.smartcare.enums.VisitStatus;
-import com.smartcare.dto.DepartmentCheckInRequest;
-import com.smartcare.dto.DepartmentCheckInResponse;
+
 import com.smartcare.enums.CheckInAction;
-import com.smartcare.repository.DepartmentRepository;
+
 import com.smartcare.model.Department;
 import java.util.Optional;
 
@@ -38,8 +37,8 @@ public class VisitService {
     @Autowired
     private PatientRepository patientRepository;
 
-    @Autowired
-    private PaymentRepository paymentRepository;
+    // @Autowired
+    // private PaymentRepository paymentRepository;
 
     @Autowired
     private DepartmentRepository departmentRepository;
