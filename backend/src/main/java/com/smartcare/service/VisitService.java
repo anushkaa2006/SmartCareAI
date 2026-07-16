@@ -44,6 +44,9 @@ public class VisitService {
     @Autowired
     private DepartmentRepository departmentRepository;
 
+    @Autowired
+    private PaymentValidationService paymentValidationService;
+
     public VisitResponse createVisit(
             String patientId,
             String departmentId
@@ -123,7 +126,6 @@ public class VisitService {
     public DepartmentCheckInResponse verifyDepartmentVisit(
             DepartmentCheckInRequest request
     ) {
-
         DepartmentCheckInResponse response =new DepartmentCheckInResponse();
         LocalDate today =  LocalDate.now();
         Optional<Visit> optionalVisit = visitRepository.findFirstByPatientIdAndVisitDate(request.getPatientId(), today);
@@ -145,27 +147,10 @@ public class VisitService {
 
             return response;
         }
-        // if (visit.getVisitStatus().equals(VisitStatus.ARRIVED.name())) {
-
-        //     response.setAction(CheckInAction.ALREADY_CHECKED_IN.name());
-
-        //     response.setPatientId(visit.getPatientId());
-
-        //     response.setVisitId(visit.getVisitId());
-
-        //     response.setDepartmentId(visit.getDepartmentId());
-
-        //     response.setVisitStatus(visit.getVisitStatus());
-
-
-        //     response.setMessage("Patient has already checked in.");
-
-        //     return response;
-        // }
-
    
 
         Optional<Queue> optionalQueue =queueRepository.findByVisitId(visit.getVisitId());
+        System.out.println("Queue Found");
 
         if(optionalQueue.isEmpty()){
 
@@ -179,9 +164,10 @@ public class VisitService {
             ).orElseThrow(() -> new RuntimeException("Patient not found."));
         
 
-        Payment payment = paymentRepository.findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
-                    visit.getPatientId(),visit.getDepartmentId(),"SUCCESS"
-            ).orElseThrow(() ->new RuntimeException("Payment not found."));    
+        Payment payment = paymentValidationService.getValidPayment(
+                visit.getPatientId(),
+                visit.getDepartmentId()
+        );
 
         
         Department department = departmentRepository.findById(visit.getDepartmentId())
@@ -210,6 +196,8 @@ public class VisitService {
         response.setMessage( "Department Check-in Successful." );
 
         return response;
+        
+       
     }
 
     private void buildDepartmentCheckInResponse(

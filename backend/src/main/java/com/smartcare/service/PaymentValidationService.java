@@ -175,4 +175,38 @@ public class PaymentValidationService {
 
         return departmentFeeService.getConsultationFee(departmentId);
     }
+
+
+    public Payment getValidPayment(String patientId, String departmentId) {
+
+        HospitalConfig config = hospitalConfigService.getConfiguration();
+
+        Optional<Payment> optionalPayment;
+
+        if (config.getPaymentFlag() == PaymentFlag.HOSPITAL_WISE.getValue()) {
+
+                optionalPayment = paymentRepository
+                                .findFirstByPatientIdAndPaymentStatusOrderByPaymentDateDesc(
+                                        patientId,PaymentStatus.SUCCESS.name());
+
+        } else {
+
+                optionalPayment = paymentRepository
+                                .findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
+                                        patientId,departmentId,PaymentStatus.SUCCESS.name());
+
+        }
+
+        if (optionalPayment.isEmpty()) {
+                throw new RuntimeException("Payment not found.");
+        }
+
+        Payment payment = optionalPayment.get();
+
+        if (payment.getValidTill().isBefore(LocalDate.now())) {
+                throw new RuntimeException("Payment has expired.");
+        }
+
+        return payment;
+        }
 }
