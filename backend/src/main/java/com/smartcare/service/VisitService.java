@@ -44,7 +44,7 @@ public class VisitService {
 
         visit.setDepartmentId(departmentId);
 
-        visit.setVisitStatus("ACTIVE");
+        visit.setVisitStatus("REGISTERED");
 
         visit.setRegistrationDate(today.format(DateTimeFormatter.ofPattern("yyyyMMdd")) );
 
