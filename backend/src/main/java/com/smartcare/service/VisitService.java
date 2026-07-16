@@ -6,12 +6,23 @@ import java.time.format.DateTimeFormatter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.smartcare.dto.DepartmentCheckInRequest;
+import com.smartcare.dto.DepartmentCheckInResponse;
 import com.smartcare.dto.VisitResponse;
+import com.smartcare.model.Patient;
+import com.smartcare.model.Payment;
 import com.smartcare.model.Queue;
 import com.smartcare.model.Visit;
+import com.smartcare.repository.PatientRepository;
+import com.smartcare.repository.PaymentRepository;
 import com.smartcare.repository.QueueRepository;
 import com.smartcare.repository.VisitRepository;
 import com.smartcare.enums.VisitStatus;
+import com.smartcare.dto.DepartmentCheckInRequest;
+import com.smartcare.dto.DepartmentCheckInResponse;
+import com.smartcare.enums.CheckInAction;
+
+import java.util.Optional;
 
 @Service
 public class VisitService {
@@ -21,6 +32,12 @@ public class VisitService {
 
     @Autowired
     private QueueRepository queueRepository;
+
+    @Autowired
+    private PatientRepository patientRepository;
+
+    @Autowired
+    private PaymentRepository paymentRepository;
 
     public VisitResponse createVisit(
             String patientId,
@@ -95,5 +112,86 @@ public class VisitService {
         long count =queueRepository.countByRegistrationDate(datePart);
 
         return "QID" +datePart +String.format("%06d", count + 1);
+    }
+
+
+    public DepartmentCheckInResponse verifyDepartmentVisit(
+            DepartmentCheckInRequest request
+    ) {
+
+        DepartmentCheckInResponse response =new DepartmentCheckInResponse();
+        LocalDate today =  LocalDate.now();
+        Optional<Visit> optionalVisit = visitRepository.findFirstByPatientIdAndVisitDate(request.getPatientId(), today);
+        if (optionalVisit.isEmpty()) {
+
+            response.setAction(CheckInAction.NO_VISIT_FOUND.name());
+
+            response.setMessage("No visit found for today.");
+
+            return response;
+        }
+
+        Visit visit = optionalVisit.get();
+        if (!visit.getDepartmentId().equals(request.getDepartmentId())) {
+
+            response.setAction(CheckInAction.WRONG_DEPARTMENT.name());
+
+            response.setMessage("Patient is registered for another department.");
+
+            return response;
+        }
+        if (visit.getVisitStatus().equals(VisitStatus.ARRIVED.name())) {
+
+            response.setAction(CheckInAction.ALREADY_CHECKED_IN.name());
+
+            response.setPatientId(visit.getPatientId());
+
+            response.setVisitId(visit.getVisitId());
+
+            response.setDepartmentId(visit.getDepartmentId());
+
+            response.setVisitStatus(visit.getVisitStatus());
+
+            response.setMessage("Patient has already checked in.");
+
+            return response;
+        }
+
+   
+
+        Optional<Queue> optionalQueue =queueRepository.findByVisitId(visit.getVisitId());
+
+        if(optionalQueue.isEmpty()){
+
+            throw new RuntimeException("Queue not found.");
+
+        }
+
+        Queue queue = optionalQueue.get();
+
+        Patient patient = patientRepository.findById(visit.getPatientId()
+            ).orElseThrow(() -> new RuntimeException("Patient not found."));
+        
+
+        Payment payment = paymentRepository.findFirstByPatientIdAndDepartmentIdAndPaymentStatusOrderByPaymentDateDesc(
+                    visit.getPatientId(),visit.getDepartmentId(),"SUCCESS"
+            ).orElseThrow(() ->new RuntimeException("Payment not found."));    
+
+
+        visit.setVisitStatus(VisitStatus.ARRIVED.name());
+        visitRepository.save(visit);
+
+        response.setAction(CheckInAction.CHECK_IN_SUCCESS.name());
+        response.setPatientId(patient.getPatientId());
+        response.setPatientName(patient.getName());
+        response.setVisitId(visit.getVisitId() );
+        response.setDepartmentId(visit.getDepartmentId());
+        response.setQueueNumber(queue.getQueueNumber());
+        response.setPaymentStatus(payment.getPaymentStatus());
+        response.setVisitStatus(visit.getVisitStatus());
+        response.setMessage("Department Check-in Successful." );
+
+
+        return response;
     }
 }

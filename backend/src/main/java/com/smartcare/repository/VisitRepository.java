@@ -3,6 +3,7 @@ package com.smartcare.repository;
 import com.smartcare.model.Visit;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -17,4 +18,12 @@ public interface VisitRepository extends JpaRepository<Visit,String> {
             WHERE v.visitDate = :visitDate
         """)
         Long findMaxSequenceForDate(LocalDate visitDate);
+
+
+        Optional<Visit> findFirstByPatientIdAndVisitDate(
+                String patientId,
+                LocalDate visitDate
+        );
+
+        
 }

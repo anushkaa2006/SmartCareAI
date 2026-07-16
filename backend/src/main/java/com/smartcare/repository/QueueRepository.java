@@ -5,6 +5,8 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 
 public interface QueueRepository
@@ -29,4 +31,6 @@ public interface QueueRepository
             String departmentId,
             LocalDate queueDate
     );
+
+    Optional<Queue> findByVisitId(String visitId);
 }
