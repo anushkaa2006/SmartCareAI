@@ -13,6 +13,7 @@ import com.smartcare.model.Patient;
 import com.smartcare.model.Payment;
 import com.smartcare.model.Queue;
 import com.smartcare.model.Visit;
+import com.smartcare.repository.DepartmentRepository;
 import com.smartcare.repository.PatientRepository;
 import com.smartcare.repository.PaymentRepository;
 import com.smartcare.repository.QueueRepository;
@@ -21,7 +22,8 @@ import com.smartcare.enums.VisitStatus;
 import com.smartcare.dto.DepartmentCheckInRequest;
 import com.smartcare.dto.DepartmentCheckInResponse;
 import com.smartcare.enums.CheckInAction;
-
+import com.smartcare.repository.DepartmentRepository;
+import com.smartcare.model.Department;
 import java.util.Optional;
 
 @Service
@@ -38,6 +40,9 @@ public class VisitService {
 
     @Autowired
     private PaymentRepository paymentRepository;
+
+    @Autowired
+    private DepartmentRepository departmentRepository;
 
     public VisitResponse createVisit(
             String patientId,
@@ -126,7 +131,7 @@ public class VisitService {
 
             response.setAction(CheckInAction.NO_VISIT_FOUND.name());
 
-            response.setMessage("No visit found for today.");
+            response.setMessage("No active visit found for today.");
 
             return response;
         }
@@ -136,26 +141,27 @@ public class VisitService {
 
             response.setAction(CheckInAction.WRONG_DEPARTMENT.name());
 
-            response.setMessage("Patient is registered for another department.");
+            response.setMessage("Patient has an active visit for another department.");
 
             return response;
         }
-        if (visit.getVisitStatus().equals(VisitStatus.ARRIVED.name())) {
+        // if (visit.getVisitStatus().equals(VisitStatus.ARRIVED.name())) {
 
-            response.setAction(CheckInAction.ALREADY_CHECKED_IN.name());
+        //     response.setAction(CheckInAction.ALREADY_CHECKED_IN.name());
 
-            response.setPatientId(visit.getPatientId());
+        //     response.setPatientId(visit.getPatientId());
 
-            response.setVisitId(visit.getVisitId());
+        //     response.setVisitId(visit.getVisitId());
 
-            response.setDepartmentId(visit.getDepartmentId());
+        //     response.setDepartmentId(visit.getDepartmentId());
 
-            response.setVisitStatus(visit.getVisitStatus());
+        //     response.setVisitStatus(visit.getVisitStatus());
 
-            response.setMessage("Patient has already checked in.");
 
-            return response;
-        }
+        //     response.setMessage("Patient has already checked in.");
+
+        //     return response;
+        // }
 
    
 
@@ -177,21 +183,82 @@ public class VisitService {
                     visit.getPatientId(),visit.getDepartmentId(),"SUCCESS"
             ).orElseThrow(() ->new RuntimeException("Payment not found."));    
 
+        
+        Department department = departmentRepository.findById(visit.getDepartmentId())
+                .orElseThrow(() -> new RuntimeException("Department not found."));
+
+
+            
+        if (visit.getVisitStatus().equals(VisitStatus.ARRIVED.name())) {
+
+            buildDepartmentCheckInResponse(response,patient,visit,queue,payment,department);
+
+            response.setAction(CheckInAction.ALREADY_CHECKED_IN.name());
+
+            response.setMessage("Patient has already checked in.");
+
+            return response;
+        }
+
 
         visit.setVisitStatus(VisitStatus.ARRIVED.name());
         visitRepository.save(visit);
 
+        buildDepartmentCheckInResponse(response,patient,visit,queue,payment,department);
         response.setAction(CheckInAction.CHECK_IN_SUCCESS.name());
-        response.setPatientId(patient.getPatientId());
-        response.setPatientName(patient.getName());
-        response.setVisitId(visit.getVisitId() );
-        response.setDepartmentId(visit.getDepartmentId());
-        response.setQueueNumber(queue.getQueueNumber());
-        response.setPaymentStatus(payment.getPaymentStatus());
-        response.setVisitStatus(visit.getVisitStatus());
-        response.setMessage("Department Check-in Successful." );
 
+        response.setMessage( "Department Check-in Successful." );
 
         return response;
     }
+
+    private void buildDepartmentCheckInResponse(
+
+            DepartmentCheckInResponse response,
+
+            Patient patient,
+
+            Visit visit,
+
+            Queue queue,
+
+            Payment payment,
+
+            Department department
+
+    ) {
+
+        response.setPatientId(patient.getPatientId());
+
+        response.setPatientName(patient.getName());
+
+        response.setVisitId(visit.getVisitId());
+
+        response.setDepartmentId(visit.getDepartmentId());
+
+        response.setDepartmentName(
+                department.getDepartmentName()
+        );
+
+        response.setQueueNumber(
+                queue.getQueueNumber()
+        );
+
+        response.setQueueStatus(
+                queue.getQueueStatus()
+        );
+
+        response.setPaymentId(
+                payment.getPaymentId()
+        );
+
+        response.setPaymentStatus(
+                payment.getPaymentStatus()
+        );
+
+        response.setVisitStatus(
+                visit.getVisitStatus()
+        );
+
+}
 }

@@ -5,9 +5,12 @@ package com.smartcare.Controller;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import com.smartcare.dto.DepartmentCheckInRequest;
+import com.smartcare.dto.DepartmentCheckInResponse;
 import com.smartcare.dto.VisitRequest;
 import com.smartcare.dto.VisitResponse;
 import com.smartcare.service.VisitService;
+
 
 @RestController
 @RequestMapping("/visits")
@@ -21,5 +24,12 @@ public class VisitController {
     @PostMapping("/create")
     public VisitResponse createVisit(@RequestBody VisitRequest request){
         return visitService.createVisit(request.getPatientId(),request.getDepartmentId());
+    }
+
+    @PostMapping("/department/checkin")
+    public DepartmentCheckInResponse departmentCheckIn(
+            @RequestBody DepartmentCheckInRequest request
+    ) {
+        return visitService.verifyDepartmentVisit(request);
     }
 }

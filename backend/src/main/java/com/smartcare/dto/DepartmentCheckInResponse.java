@@ -10,15 +10,34 @@ public class DepartmentCheckInResponse {
     private String visitId;
 
     private Integer queueNumber;
+    private String queueStatus;
 
     private String departmentId;
     private String departmentName;
 
+    private String paymentId;
     private String paymentStatus;
 
     private String visitStatus;
 
     private String message;
+
+
+    public String getQueueStatus() {
+        return queueStatus;
+    }
+
+    public void setQueueStatus(String queueStatus) {
+        this.queueStatus = queueStatus;
+    }
+
+    public String getPaymentId() {
+        return paymentId;
+    }
+
+    public void setPaymentId(String paymentId) {
+        this.paymentId = paymentId;
+    }
 
     public String getAction() {
         return action;
