@@ -87,6 +87,9 @@ from pages.registration_page import RegistrationPage
 from pages.identify_patient_page import IdentifyPatientPage
 from pages.patient_recovery_page import PatientRecoveryPage
 from pages.payment_page import PaymentPage
+from pages.department_checkin_result_page import DepartmentCheckInResultPage
+import requests
+from tkinter import messagebox
 
 ctk.set_appearance_mode("light")
 ctk.set_default_color_theme("blue")
@@ -315,20 +318,69 @@ def show_department_checkin(
     department_id,
     department_name
 ):
-    """
-    This function will be implemented next.
 
-    It will:
-        - Call /visits/department/checkin
-        - Show success/failure page
-        - Return to camera
-    """
+    try:
 
-    print("Patient :", patient_id)
-    print("Department :", department_id)
-    print("Department Name :", department_name)
+        payload = {
+            "patientId": patient_id,
+            "departmentId": department_id
+        }
 
+        response = requests.post(
+            "http://localhost:9090/visits/department/checkin",
+            json=payload
+        )
 
+        if response.status_code != 200:
+
+            messagebox.showerror(
+                "Error",
+                "Unable to perform department check-in."
+            )
+            return
+
+        data = response.json()
+
+        show_department_result(
+            patient_name=data.get("patientName"),
+            patient_id=data.get("patientId"),
+            department_name=data.get("departmentName"),
+            queue_number=data.get("queueNumber"),
+            message=data.get("message"),
+            action=data.get("action")
+        )
+
+    except Exception as e:
+
+        messagebox.showerror(
+            "Error",
+            str(e)
+        )
+        
+
+def show_department_result(
+    patient_name,
+    patient_id,
+    department_name,
+    queue_number,
+    message,
+    action
+):
+
+    global current_page
+
+    clear_page()
+
+    current_page = DepartmentCheckInResultPage(
+        app,
+        patient_name=patient_name,
+        patient_id=patient_id,
+        department_name=department_name,
+        queue_number=queue_number,
+        message=message,
+        action=action,
+        done_callback=show_department_selection
+    )
 # =====================================================
 # START APPLICATION
 # =====================================================
