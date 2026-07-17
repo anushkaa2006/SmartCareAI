@@ -111,18 +111,24 @@ class PatientRecoveryPage(ctk.CTkFrame):
             command=self.verify_patient
         ).pack( pady=10)
 
-        ctk.CTkLabel(card, text="──────── OR ────────", 
-                     font=("Segoe UI",14), text_color=TEXT_SOFT).pack(pady=25)
-        
-        ctk.CTkButton(
-            card,
-            text="Register as New Patient",
-            width=250,
-            height=45,
-            fg_color=PRIMARY,
-            hover_color=PRIMARY_H,
-            command=self.open_registration
-        ).pack()
+        if self.mode == "REGISTRATION":
+
+            ctk.CTkLabel(
+                card,
+                text="──────── OR ────────",
+                font=("Segoe UI",14),
+                text_color=TEXT_SOFT
+            ).pack(pady=25)
+
+            ctk.CTkButton(
+                card,
+                text="Register as New Patient",
+                width=250,
+                height=45,
+                fg_color=PRIMARY,
+                hover_color=PRIMARY_H,
+                command=self.open_registration
+            ).pack()
 
     
     def verify_patient(self):
@@ -207,8 +213,8 @@ class PatientRecoveryPage(ctk.CTkFrame):
                 values=["Loading..."]
             )
 
-        self.department_dropdown.pack()
-        self.load_departments()
+            self.department_dropdown.pack()
+            self.load_departments()
         if self.mode == "REGISTRATION":
 
             ctk.CTkButton(
@@ -264,8 +270,8 @@ class PatientRecoveryPage(ctk.CTkFrame):
     def department_checkin(self):
 
         self.open_department_checkin(
-            self.verified_patient,
+            self.verified_patient["patientId"],
             self.department_id,
             self.department_name
         )
-    
+        

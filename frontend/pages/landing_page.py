@@ -363,13 +363,10 @@ class LandingPage(ctk.CTkFrame):
                 else:
 
                     self.after(
-                        700,
-                        lambda: self.open_patient_recovery(
-                            self.department_id,
-                            self.department_name
+                        700,lambda: self.open_patient_recovery(
+                            "DEPARTMENT",self.department_id,self.department_name
                         )
                     )
-
                 return
         
         rgb = cv2.cvtColor(
