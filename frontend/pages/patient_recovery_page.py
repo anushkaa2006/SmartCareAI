@@ -30,12 +30,18 @@ ACCENT = ("#2563EB", "#3B82F6")
 
 
 class PatientRecoveryPage(ctk.CTkFrame):
-    def __init__(self,parent,go_back,open_registration,open_face_update):
+    def __init__(self,parent,go_back,open_registration,open_face_update,mode="REGISTRATION",department_id=None,department_name=None,open_department_checkin=None):
         super().__init__(parent, fg_color=BG)
 
         self.go_back = go_back
         self.open_registration = open_registration
         self.open_face_update = open_face_update
+        self.mode = mode
+
+        self.department_id = department_id
+        self.department_name = department_name
+
+        self.open_department_checkin = open_department_checkin
         self.department_map ={}
 
         self.pack(fill="both", expand=True)
@@ -193,12 +199,39 @@ class PatientRecoveryPage(ctk.CTkFrame):
             ctk.CTkLabel(row, text=label+":", font=(FONT_DISPLAY, 14),width=120, anchor="w").pack(side="left")
             ctk.CTkLabel(row, text=str(value), font=(FONT_BODY, 14)).pack(side="left")
 
-        self.department_dropdown = ctk.CTkComboBox(container, width=320, values =["Loading..."])
+        if self.mode == "REGISTRATION":
+
+            self.department_dropdown = ctk.CTkComboBox(
+                container,
+                width=320,
+                values=["Loading..."]
+            )
+
         self.department_dropdown.pack()
         self.load_departments()
-        ctk.CTkButton(container,text="Continue",width=180,height=42, 
-                        fg_color=PRIMARY,hover_color=PRIMARY_H,
-                        command=self.continue_to_face_update).pack(pady=30)
+        if self.mode == "REGISTRATION":
+
+            ctk.CTkButton(
+                container,
+                text="Continue",
+                width=180,
+                height=42,
+                fg_color=PRIMARY,
+                hover_color=PRIMARY_H,
+                command=self.continue_to_face_update
+            ).pack(pady=30)
+
+        else:
+
+            ctk.CTkButton(
+                container,
+                text="Check In",
+                width=180,
+                height=42,
+                fg_color=PRIMARY,
+                hover_color=PRIMARY_H,
+                command=self.department_checkin
+            ).pack(pady=30)
     
 
     def continue_to_face_update(self):
@@ -227,4 +260,12 @@ class PatientRecoveryPage(ctk.CTkFrame):
             ctk.set_appearance_mode("light")
 
 
+
+    def department_checkin(self):
+
+        self.open_department_checkin(
+            self.verified_patient,
+            self.department_id,
+            self.department_name
+        )
     

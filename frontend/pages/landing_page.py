@@ -32,12 +32,19 @@ FONT_BODY    = "Segoe UI"
 
 
 class LandingPage(ctk.CTkFrame):
-    def __init__(self, parent, open_registration, open_identify_patient, open_patient_recovery, open_face_update):
+    def __init__(self, parent, open_registration, open_identify_patient, open_patient_recovery, open_face_update,mode="REGISTRATION",department_id =None,department_name=None,open_department_checkin=None):
         super().__init__(parent, fg_color=BG)
 
         self.open_registration = open_registration
         self.open_identify_patient = open_identify_patient
         self.open_patient_recovery = open_patient_recovery
+        self.open_face_update = open_face_update
+        self.mode = mode
+
+        self.department_id = department_id
+        self.department_name = department_name
+
+        self.open_department_checkin = open_department_checkin
 
         self.face_identifier = FaceIdentifier()
 
@@ -310,12 +317,25 @@ class LandingPage(ctk.CTkFrame):
                     self.cap.release()
                     self.cap = None
 
-                self.after(
-                    700,
-                    lambda: self.open_identify_patient(
-                        result["patientId"]
+                if self.mode == "REGISTRATION":
+
+                    self.after(
+                        700,
+                        lambda: self.open_identify_patient(
+                            result["patientId"]
+                        )
                     )
-                )
+
+                else:
+
+                    self.after(
+                        700,
+                        lambda: self.open_department_checkin(
+                            result["patientId"],
+                            self.department_id,
+                            self.department_name
+                        )
+                    )
 
                 return
 
@@ -333,10 +353,22 @@ class LandingPage(ctk.CTkFrame):
                     self.cap.release()
                     self.cap = None
 
-                self.after(
-                    700,
-                    self.open_patient_recovery
-                )
+                if self.mode == "REGISTRATION":
+
+                    self.after(
+                        700,
+                        self.open_patient_recovery
+                    )
+
+                else:
+
+                    self.after(
+                        700,
+                        lambda: self.open_patient_recovery(
+                            self.department_id,
+                            self.department_name
+                        )
+                    )
 
                 return
         
