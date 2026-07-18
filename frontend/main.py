@@ -356,16 +356,13 @@ def show_department_checkin(
             "Error",
             str(e)
         )
-        
+
 
 def show_department_result(
-    patient_name,
-    patient_id,
-    department_name,
-    queue_number,
-    message,
-    action
-):
+    patient_name,patient_id,department_name,
+    queue_number,message,action):
+
+    print(">>> show_department_result called")
 
     global current_page
 

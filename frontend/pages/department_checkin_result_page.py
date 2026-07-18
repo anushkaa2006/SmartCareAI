@@ -26,17 +26,10 @@ FONT_BODY = "Segoe UI"
 class DepartmentCheckInResultPage(ctk.CTkFrame):
 
     def __init__(
-        self,
-        parent,
-        patient_name,
-        patient_id,
-        department_name,
-        queue_number,
-        message,
-        action,
-        done_callback
-    ):
+        self,parent,patient_name,patient_id,department_name,
+        queue_number,message,action,done_callback):
 
+        print(">>> DepartmentCheckInResultPage created")
         super().__init__(parent, fg_color=BG)
 
         self.pack(fill="both", expand=True)
