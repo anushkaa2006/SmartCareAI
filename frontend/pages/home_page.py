@@ -66,8 +66,8 @@ class HomePage(ctk.CTkFrame):
         # Registration Card
         reg = ctk.CTkFrame(
             cards,
-            width=320,
-            height=260,
+            width=340,
+            height=320,
             fg_color=SURFACE,
             corner_radius=20
         )
@@ -97,6 +97,7 @@ class HomePage(ctk.CTkFrame):
             text="Open",
             width=180,
             height=42,
+            corner_radius=12,
             fg_color=PRIMARY,
             hover_color=PRIMARY_H,
             command=self.open_registration_mode
@@ -105,8 +106,8 @@ class HomePage(ctk.CTkFrame):
         # Department Card
         dept = ctk.CTkFrame(
             cards,
-            width=320,
-            height=260,
+            width=340,
+            height=320,
             fg_color=SURFACE,
             corner_radius=20
         )
