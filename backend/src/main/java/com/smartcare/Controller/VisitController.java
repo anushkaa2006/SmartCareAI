@@ -14,7 +14,6 @@ import com.smartcare.service.VisitService;
 
 @RestController
 @RequestMapping("/visits")
-@CrossOrigin("*")
 public class VisitController {
 
     @Autowired
