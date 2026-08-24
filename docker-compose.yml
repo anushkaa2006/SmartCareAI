@@ -1,0 +1,65 @@
+version: "3.9"
+
+# =====================================================
+# SmartCare ID - Deployment Stack
+# =====================================================
+# Brings up MySQL and the Spring Boot backend.
+# The frontend is a desktop GUI app (customtkinter) and
+# is intentionally NOT containerized here - run it natively
+# on the machine with the webcam. See frontend/README.md
+# and the root README for details.
+#
+# Usage:
+#   cp .env.example .env      # then edit values as needed
+#   docker compose up -d --build
+# =====================================================
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: smartcare-mysql
+    restart: unless-stopped
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-smartcare_db}
+      MYSQL_USER: ${MYSQL_USER:-smartcare}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-smartcare}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - smartcare-mysql-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-p${MYSQL_ROOT_PASSWORD:-rootpassword}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    networks:
+      - smartcare-net
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: smartcare-backend
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      DB_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-smartcare_db}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true
+      DB_USERNAME: ${MYSQL_USER:-smartcare}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-smartcare}
+      DDL_AUTO: ${DDL_AUTO:-update}
+      SHOW_SQL: ${SHOW_SQL:-false}
+      SERVER_PORT: 9090
+    ports:
+      - "${BACKEND_PORT:-9090}:9090"
+    networks:
+      - smartcare-net
+
+networks:
+  smartcare-net:
+    driver: bridge
+
+volumes:
+  smartcare-mysql-data:
