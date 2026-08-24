@@ -1,14 +1,23 @@
 # --------------------
-# Python
+# Python (old frontend - if still present)
 # --------------------
 venv/
 __pycache__/
 *.py[cod]
 
-# Generated frontend files
+# Generated Python frontend files
 captured_faces/
 *_qr.png
 *_Slip.pdf
+
+# --------------------
+# React / Node
+# --------------------
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
 
 # --------------------
 # Spring Boot / Maven
@@ -16,6 +25,9 @@ captured_faces/
 target/
 *.class
 *.log
+
+# Local Spring configuration with secrets
+application-local.properties
 
 # --------------------
 # IDE files
@@ -27,8 +39,3 @@ target/
 # macOS
 # --------------------
 .DS_Store
-
-# --------------------
-# Environment files
-# --------------------
-.env
